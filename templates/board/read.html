@@ -55,6 +55,7 @@
                            class="form-control" type="text" value="{{ reply.contents }}" readonly>
                 </div>
                 <div class="col-md-2">
+                    {% if request.user == reply.writer %}
                     <button class="btn btn-primary text-uppercase"
                             type="submit">
                         수정
@@ -63,6 +64,7 @@
                             type="submit">
                         삭제
                     </button>
+                    {% endif %}
                 </div>
             </div>
             <br/>
