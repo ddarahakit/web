@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block contents %}
+<section class="page-section bg-light" id="team">
+            <div class="container">
+                <div class="text-center">
+                    <h2 class="section-heading text-uppercase">내 정보</h2>
+                    <h3 class="section-subheading text-muted">내 프로필 정보입니다.</h3>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4">
+
+                    </div>
+                    <div class="col-lg-4 text-center">
+                        <div class="team-member">
+                            <img class="mx-auto rounded-circle" src="https://sjb-s3.s3.ap-northeast-2.amazonaws.com/media/{{ request.user.image }}" alt="...">
+                            <h4>{{ request.user }}</h4>
+                            <p class="text-muted">{{ request.user.email }}</p>
+                        </div>
+                        <p class="large text-muted ">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aut eaque, laboriosam veritatis, quos non quis ad perspiciatis, totam corporis ea, alias ut unde.</p>
+
+                    </div>
+                    <div class="col-lg-4">
+
+                    </div>
+
+                </div>
+                <div class="row">
+
+                </div>
+            </div>
+        </section>
+{% endblock %}

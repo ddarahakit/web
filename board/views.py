@@ -3,11 +3,11 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
 from board.forms import PostForm
-from board.models import Post
+from board.models import Post, PostImage
 from reply.forms import ReplyForm
 
 
-@login_required(login_url='/user/login')
+@login_required(login_url='/accounts/login')
 def like(request, bid):
     post = Post.objects.get(id=bid)
     user = request.user
@@ -19,7 +19,7 @@ def like(request, bid):
         return JsonResponse({'message': 'added', 'like_cnt': post.like.count()})
 
 
-@login_required(login_url='/user/login')
+@login_required(login_url='/accounts/login')
 def create(request):
     if request.method == "GET":
         postForm = PostForm()
@@ -32,29 +32,36 @@ def create(request):
             post = postForm.save(commit=False)
             post.writer = request.user
             post.save()
+            for image in request.FILES.getlist('image', None):
+                postImage = PostImage()
+                postImage.image = image
+                postImage.post = post
+                postImage.save()
+
+
         return redirect('/board/read/' + str(post.id))
 
 
 def list(request):
-    posts = Post.objects.all().order_by('-id')
+    posts = Post.objects.prefetch_related('postimage_set').all().order_by('-id')
     context = {'posts': posts}
     return render(request, 'board/list.html', context)
 
 
 def read(request, bid):
-    post = Post.objects.prefetch_related('reply_set').get(id=bid)
+    post = Post.objects.prefetch_related('reply_set').prefetch_related('postimage_set').get(id=bid)
     replyForm = ReplyForm()
     context = {'post': post, 'replyForm': replyForm}
     return render(request, 'board/read.html', context)
 
 
-@login_required(login_url='/user/login')
+@login_required(login_url='/accounts/login')
 def delete(request, bid):
     post = Post.objects.get(id=bid)
     if request.user != post.writer:
         return redirect('/board/read/' + str(bid))
     post.delete()
-    return redirect('/board/list')
+    return redirect('/')
 
 
 @login_required(login_url='/user/login')

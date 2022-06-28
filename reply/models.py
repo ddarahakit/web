@@ -1,6 +1,6 @@
-from django.contrib.auth.models import User
 from django.db import models
 from board.models import Post
+from accounts.models import User
 
 
 class Reply(models.Model):

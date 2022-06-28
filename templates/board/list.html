@@ -19,7 +19,15 @@
                         <div class="portfolio-hover">
                             <div class="portfolio-hover-content"><i class="fas fa-plus fa-3x"></i></div>
                         </div>
-                        <img class="img-fluid" src="{% static 'assets/img/portfolio/1.jpg '%}" alt="..."/>
+                        <img class="img-fluid" src="
+                        {% if post.postimage_set %}
+                        {% for postimage in post.postimage_set.all %}
+                        https://sjb-s3.s3.ap-northeast-2.amazonaws.com/media/{{postimage.image }}
+                        {% endfor %}
+                        {% else %}
+                        {% static 'assets/img/portfolio/1.jpg '%}
+                        {% endif %}
+                        " alt="..."/>
                     </a>
                     <div class="portfolio-caption">
                         <div class="portfolio-caption-heading">{{ post.title }}</div>
