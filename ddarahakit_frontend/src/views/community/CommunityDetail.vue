@@ -358,14 +358,6 @@ const submitForm = async () => {
               :initial-content="post.content"
             />
           </div>
-
-          <!-- 추천 버튼 -->
-          <div class="mt-10 pt-8 border-t border-gray-50 flex justify-center">
-            <button class="flex items-center gap-2 px-8 py-3 rounded-full border border-gray-200 text-gray-500 hover:border-brand hover:text-brand transition-all font-bold">
-              <i class="fa-regular fa-thumbs-up text-xl"></i>
-              추천
-            </button>
-          </div>
         </div>
       </article>
 
@@ -375,10 +367,6 @@ const submitForm = async () => {
           <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
             답변 <span class="text-brand">{{ post.commentCount }}</span>
           </h3>
-          <div class="flex gap-4 text-sm text-gray-400">
-            <button class="text-gray-900 font-bold">최신순</button>
-            <button>추천순</button>
-          </div>
         </div>
 
         <!-- 답변 작성 폼 -->
@@ -445,7 +433,6 @@ const submitForm = async () => {
                   <p class="text-[11px] text-gray-400">{{ comment.createdAt }}</p>
                 </div>
               </div>
-              <button class="text-gray-300 hover:text-gray-500"><i class="fa-solid fa-ellipsis"></i></button>
             </div>
 
             <div class="text-gray-600 text-[15px] leading-relaxed mb-4">
@@ -453,12 +440,6 @@ const submitForm = async () => {
                 :read-only="true"
                 :initial-content="comment.content"
               />
-            </div>
-
-            <div class="flex items-center gap-4 text-xs font-bold">
-              <button class="text-gray-400 flex items-center gap-1.5 hover:text-brand transition-all">
-                <i class="fa-regular fa-thumbs-up"></i> 도움이 됐어요
-              </button>
             </div>
           </div>
 
@@ -481,10 +462,7 @@ const submitForm = async () => {
             <img v-if="post.userProfileImageUrl" :src="userImageUrl(post.userProfileImageUrl)" alt="" class="w-full h-full object-cover">
           </div>
           <h4 class="font-bold text-gray-900">{{ post.userName }}</h4>
-          <p class="text-xs text-gray-400 mb-4">질문자</p>
-          <button class="w-full py-2.5 border border-brand text-brand text-sm font-bold rounded-xl hover:bg-blue-50 transition-all">
-            프로필 보기
-          </button>
+          <p class="text-xs text-gray-400">질문자</p>
         </div>
 
         <!-- 관련 강의 -->

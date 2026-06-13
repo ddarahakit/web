@@ -616,7 +616,7 @@ const addCart = async () => {
                                     </div>
                                 </div>
                             </div>
-                            <span class="text-xs text-gray-400">2025.12.28</span>
+                            <span class="text-xs text-gray-400">{{ review.createdAt }}</span>
                         </div>
                         <p class="text-sm text-gray-600 leading-relaxed">
                             {{ review.comment }}
@@ -744,12 +744,6 @@ const addCart = async () => {
                         <button v-else @click="addCart"
                             class="w-full py-4 bg-brand text-white rounded-xl font-bold text-lg hover:opacity-90 transition-all shadow-lg shadow-blue-200">
                             수강 신청하기
-                        </button>
-
-
-                        <button
-                            class="w-full py-4 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold text-lg hover:border-brand hover:text-brand transition-all flex items-center justify-center gap-2">
-                            <i class="fa-regular fa-heart"></i> 위시리스트
                         </button>
                     </div>
                     <div class="space-y-4 border-t border-gray-50 pt-6">
