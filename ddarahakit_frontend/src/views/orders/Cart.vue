@@ -164,6 +164,22 @@ const onPaymentSuccess = async (selected, message) => {
 }
 
 /**
+ * 주문 취소 후 결과 안내.
+ * 취소가 끝나면(성공/실패) 그 결과를 메시지로 갱신해 "취소 처리 중" 상태에서 멈추지 않게 한다.
+ * 취소가 완료되면 다시 결제할 수 있음을 안내한다.
+ * @param {number} ordersIdx 취소할 주문 idx
+ * @param {string} failReason 실패 사유 안내문(앞 문장)
+ */
+const cancelOrderAndNotify = async (ordersIdx, failReason) => {
+    const cancelRes = await ordersApi.ordersCancel(ordersIdx)
+    if (cancelRes?.success) {
+        paymentStatus.value = { status: "FAILED", message: `${failReason} 주문이 취소되었습니다. 다시 결제해 주세요.` }
+    } else {
+        paymentStatus.value = { status: "FAILED", message: `${failReason} 주문 취소에 실패했습니다. 잠시 후 다시 시도하거나 고객센터에 문의해 주세요.` }
+    }
+}
+
+/**
  * 선택된 항목 결제
  */
 const onPayment = async () => {
@@ -251,19 +267,22 @@ const onPayment = async () => {
         if (verifyResponse?.success && verifyResponse?.results) {
             await onPaymentSuccess(selected, "결제가 정상적으로 완료되었습니다.")
         } else {
-            paymentStatus.value = { status: "FAILED", message: '결제 검증에 실패하였습니다. 취소 처리 중입니다.' }
-            await ordersApi.ordersCancel(ordersIdx)
+            paymentStatus.value = { status: "FAILED", message: '결제 검증에 실패하였습니다. 취소 처리 중입니다...' }
+            await cancelOrderAndNotify(ordersIdx, '결제 검증에 실패했습니다.')
         }
     } catch (error) {
         console.error("결제 중 오류 발생:", error)
-        paymentStatus.value = { status: "FAILED", message: '결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.' }
-        // 주문이 생성된 상태에서 에러 발생 시 주문 취소
+        // 주문이 생성된 상태에서 에러 발생 시 주문 취소 + 결과 안내
         if (ordersIdx) {
+            paymentStatus.value = { status: "FAILED", message: '결제 처리 중 오류가 발생했습니다. 취소 처리 중입니다...' }
             try {
-                await ordersApi.ordersCancel(ordersIdx)
+                await cancelOrderAndNotify(ordersIdx, '결제 처리 중 오류가 발생했습니다.')
             } catch (e) {
                 console.error("주문 취소 중 오류:", e)
+                paymentStatus.value = { status: "FAILED", message: '결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.' }
             }
+        } else {
+            paymentStatus.value = { status: "FAILED", message: '결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.' }
         }
     } finally {
         isPaymentProcessing.value = false
