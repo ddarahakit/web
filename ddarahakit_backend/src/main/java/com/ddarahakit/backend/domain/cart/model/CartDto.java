@@ -48,7 +48,7 @@ public class CartDto {
         private String categoryName;
         @Schema(description = "난이도 코드(BEGINNER/INTERMEDIATE/ADVANCED), 미설정 시 null", example = "BEGINNER")
         private String level;
-        @Schema(description = "난이도 한글명, 미설정 시 null", example = "초급")
+        @Schema(description = "난이도 표시 라벨(쉬움/보통/어려움), 미설정 시 null", example = "쉬움")
         private String levelDescription;
         @Schema(description = "총 리뷰 수(캐시 컬럼)", example = "12")
         private int totalReviewsCount;
@@ -82,7 +82,7 @@ public class CartDto {
                     .salePrice(course.getSalePrice())
                     .categoryName(course.getCategory() != null ? course.getCategory().getName() : null)
                     .level(course.getLevel() != null ? course.getLevel().name() : null)
-                    .levelDescription(course.getLevel() != null ? course.getLevel().getDescription() : null)
+                    .levelDescription(course.getLevel() != null ? course.getLevel().getDisplayName() : null)
                     .totalReviewsCount(course.getTotalReviewsCount() != null ? course.getTotalReviewsCount() : 0)
                     .averageRating(calcAverageRating(course))
                     .totalOrderedCount(course.getOrders() != null ? course.getOrders().size() : 0)

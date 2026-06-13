@@ -51,7 +51,7 @@ public class CourseDto {
         private int originalPrice;
         private int salePrice;
         private String level;            // 난이도 코드(BEGINNER/INTERMEDIATE/ADVANCED), 미설정 시 null
-        private String levelDescription; // 난이도 한글명, 미설정 시 null
+        private String levelDescription; // 난이도 표시 라벨(쉬움/보통/어려움), 미설정 시 null
         private int totalOrderedCount;
         private List<SectionRes> sections;
         private int totalReviewsCount;
@@ -82,7 +82,7 @@ public class CourseDto {
                     .originalPrice(entity.getOriginalPrice())
                     .salePrice(entity.getSalePrice())
                     .level(entity.getLevel() != null ? entity.getLevel().name() : null)
-                    .levelDescription(entity.getLevel() != null ? entity.getLevel().getDescription() : null)
+                    .levelDescription(entity.getLevel() != null ? entity.getLevel().getDisplayName() : null)
                     .totalOrderedCount(entity.getOrders().size())
                     .totalReviewsCount(entity.getTotalReviewsCount())
                     .rating1(entity.getRating1())
