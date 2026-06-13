@@ -25,6 +25,16 @@ const goProjects = () => router.push({ name: 'projectManagement' })
                 </p>
             </div>
 
+            <!-- 테스트 결제 안내 -->
+            <div class="max-w-3xl mx-auto mb-16 bg-blue-50/60 border border-blue-100 rounded-2xl p-4 md:p-5 flex items-start gap-3 text-left">
+                <i class="fa-solid fa-circle-info text-brand mt-0.5 shrink-0"></i>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    <span class="font-semibold text-slate-800">안내</span> ·
+                    코스에 표시된 금액으로 결제할 수 있지만, 현재 결제는 <b class="font-semibold text-slate-700">포트원(PortOne)의 토스페이</b>로 연동한 <b class="font-semibold text-slate-700">테스트 결제</b>입니다.
+                    실제로 <b class="font-semibold text-slate-700">금액이 청구되거나 돈이 빠져나가지 않으니</b> 안심하고 결제 과정을 체험해 보세요.
+                </p>
+            </div>
+
             <div class="grid md:grid-cols-2 gap-6">
                 <!-- 실제 수업 -->
                 <div class="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm card-hover">
