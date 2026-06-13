@@ -17,6 +17,9 @@ const lectureIdx = route.params.lectureIdx
 // Refs
 const mainContent = ref(null)
 
+// 프로필 호버 드롭다운 표시 여부
+const isProfileMenuOpen = ref(false)
+
 // Lecture data
 const lecture = ref({
     idx: 0,
@@ -248,12 +251,26 @@ onUnmounted(() => {
                     <i class="fa-solid fa-file-lines"></i>
                     <span class="hidden lg:inline">자료 보기</span>
                 </button>
-                <a :href="`/qna/list/${courseIdx}`"
-                    class="px-3 py-2 bg-white border border-slate-200 hover:border-[#14BCED] text-slate-700 text-xs sm:text-sm font-bold rounded-lg transition-colors">질문하기</a>
-                <button @click="logout"
-                    class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-full text-slate-600">
-                    <i class="fa-regular fa-user"></i>
-                </button>
+                <div class="relative" @mouseenter="isProfileMenuOpen = true" @mouseleave="isProfileMenuOpen = false">
+                    <button
+                        class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-full text-slate-600">
+                        <i class="fa-regular fa-user"></i>
+                    </button>
+
+                    <!-- 프로필 호버 드롭다운 -->
+                    <div v-show="isProfileMenuOpen" class="absolute top-full right-0 pt-2 z-[60]">
+                        <div class="w-44 bg-white border border-slate-100 rounded-2xl shadow-xl py-2">
+                            <RouterLink class="block px-4 py-2 text-sm hover:bg-slate-50" :to="{ name: 'dashboard' }">
+                                대시보드
+                            </RouterLink>
+                            <hr class="my-1 border-slate-100" />
+                            <button @click="logout"
+                                class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50">
+                                로그아웃
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </header>
 
