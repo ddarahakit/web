@@ -54,7 +54,8 @@ const normalizePayment = (order) => {
     date: fmtDate(order.paidAt),
     amount: Number(order.paymentPrice || 0),
     refunded: !!order.refunded,
-    icon: iconByName(items[0]?.courseName)
+    icon: iconByName(items[0]?.courseName),
+    image: items[0]?.courseImage || ''
   }
 }
 
@@ -211,7 +212,8 @@ onMounted(() => {
                   <td class="px-6 py-5">
                     <div class="flex items-center gap-4">
                       <div class="w-12 h-12 rounded-lg bg-slate-100 flex-shrink-0 flex items-center justify-center overflow-hidden">
-                        <i :class="[item.icon, 'text-slate-400']"></i>
+                        <img v-if="item.image" :src="item.image" :alt="item.title" class="w-full h-full object-cover" />
+                        <i v-else :class="[item.icon, 'text-slate-400']"></i>
                       </div>
                       <div>
                         <p class="text-sm font-bold text-slate-800">{{ item.title }}</p>
