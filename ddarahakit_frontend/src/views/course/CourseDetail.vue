@@ -764,7 +764,7 @@ const addCart = async () => {
                     <div class="space-y-4 border-t border-gray-50 pt-6">
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-gray-500">강의 수준</span>
-                            <span class="text-gray-900 font-medium">{{ course.level }}</span>
+                            <span class="text-gray-900 font-medium">{{ course.levelDescription || '미정' }}</span>
                         </div>
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-gray-500">총 강의 수</span>
