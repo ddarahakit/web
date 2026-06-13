@@ -3,7 +3,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import useAuthStore from '@/stores/useAuthStore'
 import api from '@/api/user'
 import UserDashboardSidebar from '@/components/user/UserDashboardSidebar.vue'
-import { userImageUrl } from '@/utils/image'
+import UserAvatar from '@/components/base/UserAvatar.vue'
 
 const authStore = useAuthStore()
 
@@ -219,8 +219,7 @@ onMounted(() => {
                         <div class="relative">
                             <div
                                 class="bg-white w-24 h-24 md:w-32 md:h-32 rounded-3xl overflow-hidden border-4 border-black/20 shadow-xl">
-                                <img :src="userImageUrl(userProfile.profileImageUrl) || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'"
-                                    alt="User Avatar" class="w-full h-full object-cover">
+                                <UserAvatar :src="userProfile.profileImageUrl" alt="User Avatar" icon-class="text-5xl" />
                             </div>
                         </div>
                         <div class="flex-grow text-center md:text-left">

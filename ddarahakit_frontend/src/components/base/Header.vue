@@ -4,7 +4,7 @@ import useAuthStore from '@/stores/useAuthStore'
 import { useRoute, useRouter } from 'vue-router'
 import cartApi from '@/api/cart'
 import HeaderMenu from './HeaderMenu.vue'
-import { userImageUrl } from '@/utils/image'
+import UserAvatar from '@/components/base/UserAvatar.vue'
 
 //라우터 정보 객체
 const router = useRouter()
@@ -139,8 +139,7 @@ onMounted(() => {
             </div>
 
             <div class="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 p-0.5">
-              <img :src="userImageUrl(authStore.getUserProfileImage()) || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'"
-                class="w-full h-full rounded-full object-cover" />
+              <UserAvatar :src="authStore.getUserProfileImage()" rounded="rounded-full" icon-class="text-sm" />
             </div>
           </div>
 

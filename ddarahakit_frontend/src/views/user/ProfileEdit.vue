@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import useAuthStore from '@/stores/useAuthStore'
 import api from '@/api/user'
 import UserDashboardSidebar from '@/components/user/UserDashboardSidebar.vue'
-import { userImageUrl } from '@/utils/image'
+import UserAvatar from '@/components/base/UserAvatar.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -78,16 +78,32 @@ const updateProfileImage = async (event) => {
     const file = event.target.files[0]
     if (!file) return
 
+    // 서버 한도(20MB) 초과 시 500 대신 사전 차단
+    const MAX_SIZE = 20 * 1024 * 1024
+    if (file.size > MAX_SIZE) {
+        showAlert('error', '이미지 용량이 너무 큽니다. (최대 20MB)')
+        event.target.value = ''
+        return
+    }
+
     const formData = new FormData()
     formData.append('profileImage', file)
 
-    const data = await api.updateProfileImage(formData)
-    if (data.success && data.results) {
-        userProfile.value.profileImageUrl = data.results.profileImageUrl
-        originalProfile.value.profileImageUrl = data.results.profileImageUrl
-        // 헤더 등에서 참조하는 스토리지 값도 갱신
-        authStore.setUserProfileImage(data.results.profileImageUrl)
-        showAlert('success', '프로필 이미지가 변경되었습니다.')
+    try {
+        const data = await api.updateProfileImage(formData)
+        if (data.success && data.results) {
+            userProfile.value.profileImageUrl = data.results.profileImageUrl
+            originalProfile.value.profileImageUrl = data.results.profileImageUrl
+            // 헤더 등에서 참조하는 스토리지 값도 갱신
+            authStore.setUserProfileImage(data.results.profileImageUrl)
+            showAlert('success', '프로필 이미지가 변경되었습니다.')
+        } else {
+            showAlert('error', '프로필 이미지 변경에 실패했습니다.')
+        }
+    } catch (e) {
+        showAlert('error', '프로필 이미지 변경에 실패했습니다.')
+    } finally {
+        event.target.value = '' // 동일 파일 재선택 가능하도록 초기화
     }
 }
 
@@ -180,10 +196,7 @@ onMounted(() => {
                             <div class="relative group">
                                 <div class="w-32 h-32 rounded-[2rem] bg-white p-1 shadow-lg">
                                     <div class="w-full h-full rounded-[1.8rem] overflow-hidden bg-blue-50">
-                                        <img
-                                            :src="userImageUrl(userProfile.profileImageUrl) || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'"
-                                            alt="Profile"
-                                            class="w-full h-full object-cover">
+                                        <UserAvatar :src="userProfile.profileImageUrl" alt="Profile" icon-class="text-5xl" />
                                     </div>
                                 </div>
                                 <label
