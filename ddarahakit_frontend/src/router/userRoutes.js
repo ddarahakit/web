@@ -26,6 +26,16 @@ const userRoutes = {
             }
         },
         {
+            name: 'signupComplete',
+            path: 'signup/complete',
+            component: () => import('@/views/user/SignupComplete.vue'),
+            meta: {
+                title: '회원가입 완료 | 따라학잇',
+                category: [{ name: '회원 가입', path: '/user/signup' }, { name: '가입 완료', path: '' }],
+                requiresAuth: false,
+            }
+        },
+        {
             name: 'social',
             path: 'social/:provider',
             component: () => import('@/components/user/social/SocialLoginCallback.vue'),
