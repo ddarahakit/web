@@ -31,12 +31,12 @@ public class EmailService {
             String htmlContent = "";
 
             if (type.equals(EMAIL_TYPE_SIGNUP)) {
-                subject = "[내 사이트] 가입 환영";
+                subject = "[따라학IT] 가입 환영";
                 htmlContent = "<h2 style='color: #2e6c80;'>가입을 환영합니다!</h2>"
                         + "<p>아래 링크를 클릭하여 이메일 인증을 완료해주세요:</p>"
                         + "<a href='" + domain + "/user/email/verify?email=" + email + "&uuid=" + uuid + "'>이메일 인증하기</a>";
             } else if (type.equals(EMAIL_TYPE_PASSWORD_RESET)) {
-                subject = "[내 사이트] 비밀번호 변경 링크";
+                subject = "[따라학IT] 비밀번호 변경 링크";
                 htmlContent = "<h2 style='color: #d9534f;'>비밀번호 변경 요청</h2>"
                         + "<p>아래 링크를 클릭하여 비밀번호를 변경해주세요:</p>"
                         + "<a href='" + domain + "/user/password/reset?email=" + email + "&uuid=" + uuid + "'>비밀번호 변경하기</a>";
