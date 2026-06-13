@@ -25,14 +25,28 @@ const goProjects = () => router.push({ name: 'projectManagement' })
                 </p>
             </div>
 
-            <!-- 테스트 결제 안내 -->
-            <div class="max-w-3xl mx-auto mb-16 bg-blue-50/60 border border-blue-100 rounded-2xl p-4 md:p-5 flex items-start gap-3 text-left">
-                <i class="fa-solid fa-circle-info text-brand mt-0.5 shrink-0"></i>
-                <p class="text-sm text-slate-600 leading-relaxed">
-                    <span class="font-semibold text-slate-800">안내</span> ·
-                    코스에 표시된 금액으로 결제할 수 있지만, 현재 결제는 <b class="font-semibold text-slate-700">포트원(PortOne)의 토스페이</b>로 연동한 <b class="font-semibold text-slate-700">테스트 결제</b>입니다.
-                    실제로 <b class="font-semibold text-slate-700">금액이 청구되거나 돈이 빠져나가지 않으니</b> 안심하고 결제 과정을 체험해 보세요.
-                </p>
+            <!-- 상단 안내 (수업 녹화 · 테스트 결제) -->
+            <div class="max-w-3xl mx-auto mb-16 space-y-3">
+                <!-- 수업 녹화 안내 -->
+                <div class="bg-blue-50/60 border border-blue-100 rounded-2xl p-4 md:p-5 flex items-start gap-3 text-left">
+                    <i class="fa-solid fa-circle-info text-brand mt-0.5 shrink-0"></i>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        <span class="font-semibold text-slate-800">안내</span> ·
+                        이 영상들은 온라인 강의가 아니라 <b class="font-semibold text-slate-700">현장(오프라인)에서 진행한 실제 수업</b>을 녹화한 것입니다.
+                        뒷자리에서 화면이 잘 보이지 않는 학생들을 위해 <b class="font-semibold text-slate-700">디스코드로 화면을 공유</b>하며 수업했고,
+                        그 방송을 <b class="font-semibold text-slate-700">학생이 직접 녹화</b>했습니다.
+                        <b class="font-semibold text-slate-700">별도 마이크 없이</b> 진행되어 음성·화면 품질이 다소 고르지 않을 수 있는 점 양해 부탁드립니다.
+                    </p>
+                </div>
+                <!-- 테스트 결제 안내 -->
+                <div class="bg-blue-50/60 border border-blue-100 rounded-2xl p-4 md:p-5 flex items-start gap-3 text-left">
+                    <i class="fa-solid fa-circle-info text-brand mt-0.5 shrink-0"></i>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                        <span class="font-semibold text-slate-800">안내</span> ·
+                        코스에 표시된 금액으로 결제할 수 있지만, 현재 결제는 <b class="font-semibold text-slate-700">포트원(PortOne)의 토스페이</b>로 연동한 <b class="font-semibold text-slate-700">테스트 결제</b>입니다.
+                        실제로 <b class="font-semibold text-slate-700">금액이 청구되거나 돈이 빠져나가지 않으니</b> 안심하고 결제 과정을 체험해 보세요.
+                    </p>
+                </div>
             </div>
 
             <div class="grid md:grid-cols-2 gap-6">
@@ -43,9 +57,7 @@ const goProjects = () => router.push({ name: 'projectManagement' })
                     </div>
                     <h3 class="text-xl font-bold text-gray-900 mb-3">실제 수업</h3>
                     <p class="text-gray-500 leading-relaxed mb-6">
-                        이 영상들은 온라인 강의가 아니라 현장(오프라인)에서 진행한 실제 수업을, 디스코드 화면 공유 방송을 학생이 직접 녹화한 것입니다.
-                        과목별 섹션·강의 커리큘럼으로 정리되어 있고, 강의를 선택하면 녹화 영상이 바로 재생됩니다.
-                        별도 마이크 없이 진행되어 음성·화면 품질이 다소 고르지 않을 수 있는 점 양해 부탁드립니다.
+                        <!-- TODO: 실제 수업 카드 내용 작성 예정 -->
                     </p>
                     <button @click="goCourseList" class="text-brand font-semibold hover:underline">
                         실제 수업 보러가기 <i class="fa-solid fa-chevron-right ml-1 text-xs"></i>
