@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import useAuthStore from '@/stores/useAuthStore'
 import api from '@/api/lecture'
 import QuillEditor from '@/components/base/QuillEditor.vue';
-import { userImageUrl } from '@/utils/image'
+import UserAvatar from '@/components/base/UserAvatar.vue'
 
 // Route / Router
 const route = useRoute();
@@ -255,8 +255,7 @@ onUnmounted(() => {
                 <div class="relative" @mouseenter="isProfileMenuOpen = true" @mouseleave="isProfileMenuOpen = false">
                     <button
                         class="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-slate-100 border border-slate-200">
-                        <img :src="userImageUrl(authStore.getUserProfileImage()) || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'"
-                            class="w-full h-full object-cover" />
+                        <UserAvatar :src="authStore.getUserProfileImage()" icon-class="text-sm" />
                     </button>
 
                     <!-- 프로필 호버 드롭다운 -->
