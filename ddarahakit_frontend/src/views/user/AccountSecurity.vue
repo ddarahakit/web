@@ -186,7 +186,7 @@ onMounted(() => {
         </transition>
 
         <div class="flex flex-col lg:flex-row gap-12">
-            <UserDashboardSidebar heading="Account" widget-type="security" />
+            <UserDashboardSidebar heading="Account" />
 
             <div class="flex-grow space-y-8">
                 <header>

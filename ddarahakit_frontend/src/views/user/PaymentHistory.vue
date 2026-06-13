@@ -134,7 +134,7 @@ onMounted(() => {
 <template>
   <main class="max-w-7xl mx-auto px-6 pt-28 pb-20">
     <div class="flex flex-col lg:flex-row gap-12">
-      <UserDashboardSidebar heading="Account" widget-type="payment" />
+      <UserDashboardSidebar heading="Account" />
 
       <div class="flex-grow space-y-8">
         <header class="flex flex-col md:flex-row md:items-end justify-between gap-4">
