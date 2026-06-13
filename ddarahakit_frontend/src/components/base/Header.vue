@@ -4,6 +4,7 @@ import useAuthStore from '@/stores/useAuthStore'
 import { useRoute, useRouter } from 'vue-router'
 import cartApi from '@/api/cart'
 import HeaderMenu from './HeaderMenu.vue'
+import { userImageUrl } from '@/utils/image'
 
 //라우터 정보 객체
 const router = useRouter()
@@ -138,7 +139,8 @@ onMounted(() => {
             </div>
 
             <div class="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 p-0.5">
-              <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="rounded-full" />
+              <img :src="userImageUrl(authStore.getUserProfileImage()) || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'"
+                class="w-full h-full rounded-full object-cover" />
             </div>
           </div>
 
@@ -148,10 +150,6 @@ onMounted(() => {
             <div class="w-48 bg-white border border-slate-100 rounded-2xl shadow-xl py-2">
               <RouterLink class="block px-4 py-2 text-sm hover:bg-slate-50" :to="{ name: 'dashboard' }">
                 대시보드
-              </RouterLink>
-
-              <RouterLink class="block px-4 py-2 text-sm hover:bg-slate-50" :to="{ name: 'dashboard' }">
-                내 학습함
               </RouterLink>
 
               <hr class="my-1 border-slate-100" />
