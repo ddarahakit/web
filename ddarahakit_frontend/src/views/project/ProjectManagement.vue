@@ -1,5 +1,14 @@
 <script setup>
-// 수업 진행 방식 (포트폴리오) — 수업 진행 방식·지도 노하우. 콘텐츠는 추후 추가.
+// 수업 진행 방식 (포트폴리오) — 수업 진행 방식·지도 노하우.
+
+// 내가 지도한 기수별 파이널 프로젝트 결과물 (beyond-sw-camp GitHub Organization 저장소)
+const portfolios = [
+  { cohort: 'BE02', url: 'https://github.com/orgs/beyond-sw-camp/repositories?q=be02-fin' },
+  { cohort: 'BE06', url: 'https://github.com/orgs/beyond-sw-camp/repositories?q=be06-fin' },
+  { cohort: 'BE12', url: 'https://github.com/orgs/beyond-sw-camp/repositories?q=be12-fin' },
+  { cohort: 'BE17', url: 'https://github.com/orgs/beyond-sw-camp/repositories?q=be17-fin' },
+  { cohort: 'BE24', url: 'https://github.com/orgs/beyond-sw-camp/repositories?q=be24-fin' },
+]
 </script>
 
 <template>
@@ -119,56 +128,26 @@
         </div>
       </div>
 
-      <!-- 04. 학생 후기 -->
+      <!-- 04. 학생들의 포트폴리오 -->
       <div class="flex flex-col md:flex-row items-start gap-6 md:gap-10 bg-white rounded-3xl border border-gray-100 p-8 md:p-12 shadow-sm">
         <div class="flex items-center gap-5 shrink-0">
           <span class="text-4xl md:text-5xl font-extrabold text-brand/20 tabular-nums">04</span>
           <div class="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center">
-            <i class="fa-solid fa-comment-dots text-brand text-2xl"></i>
+            <i class="fa-brands fa-github text-brand text-2xl"></i>
           </div>
         </div>
         <div class="w-full">
-          <h2 class="text-xl md:text-2xl font-bold text-slate-900 mb-5">학생 후기</h2>
-          <div class="grid sm:grid-cols-2 gap-4">
-            <figure class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
-              <div class="flex text-yellow-400 text-xs gap-0.5 mb-3">
-                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-              </div>
-              <blockquote class="text-slate-600 leading-relaxed text-sm">
-                “수업 자료가 정말 잘 정리되어 있어서 막히는 부분 없이 끝까지 완주했어요.”
-              </blockquote>
-              <figcaption class="mt-3 text-xs font-semibold text-slate-400">— 백엔드 과정 수강생</figcaption>
-            </figure>
-
-            <figure class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
-              <div class="flex text-yellow-400 text-xs gap-0.5 mb-3">
-                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-              </div>
-              <blockquote class="text-slate-600 leading-relaxed text-sm">
-                “제가 만든 결과물을 꼼꼼히 피드백해 주셔서 완성도가 확 올라갔습니다.”
-              </blockquote>
-              <figcaption class="mt-3 text-xs font-semibold text-slate-400">— 프론트엔드 과정 수강생</figcaption>
-            </figure>
-
-            <figure class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
-              <div class="flex text-yellow-400 text-xs gap-0.5 mb-3">
-                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-              </div>
-              <blockquote class="text-slate-600 leading-relaxed text-sm">
-                “프로젝트를 직접 배포하고 모니터링까지 해본 경험이 면접에서 큰 도움이 됐어요.”
-              </blockquote>
-              <figcaption class="mt-3 text-xs font-semibold text-slate-400">— 데브옵스 과정 수강생</figcaption>
-            </figure>
-
-            <figure class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
-              <div class="flex text-yellow-400 text-xs gap-0.5 mb-3">
-                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-              </div>
-              <blockquote class="text-slate-600 leading-relaxed text-sm">
-                “단순 강의가 아니라 실제 서비스 운영 경험까지 챙겨주는 점이 가장 좋았습니다.”
-              </blockquote>
-              <figcaption class="mt-3 text-xs font-semibold text-slate-400">— 풀스택 과정 수강생</figcaption>
-            </figure>
+          <h2 class="text-xl md:text-2xl font-bold text-slate-900 mb-2">학생들의 포트폴리오</h2>
+          <p class="text-slate-500 text-sm mb-5">제가 지도한 기수별 파이널 프로젝트 결과물(GitHub)입니다.</p>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <a v-for="p in portfolios" :key="p.cohort" :href="p.url" target="_blank" rel="noopener noreferrer"
+              class="group flex items-center justify-between gap-3 bg-slate-50 rounded-2xl p-5 border border-slate-100 hover:border-brand hover:bg-blue-50/40 transition-all">
+              <span class="flex items-center gap-3">
+                <i class="fa-brands fa-github text-slate-700 text-xl"></i>
+                <span class="text-sm font-bold text-slate-800">{{ p.cohort }} 파이널 프로젝트</span>
+              </span>
+              <i class="fa-solid fa-arrow-up-right-from-square text-slate-300 group-hover:text-brand transition-colors text-xs"></i>
+            </a>
           </div>
         </div>
       </div>
