@@ -665,8 +665,15 @@ i {
     font-style: normal;
 }
 
-/* 수업 자료(QuillEditor read-only) 서식 — 소제목(h3, 1./2. 레벨) 한 단계 들여쓰기 */
+/* 수업 자료(QuillEditor read-only) 서식 — 소제목(h3, 1./2. 레벨) 들여쓰기 + 위 여백(한 줄 더) */
 .main-content :deep(.ql-editor h3) {
+    margin-left: 1.25rem;
+    margin-top: 1.6em;
+}
+/* 소제목 바로 아래 본문(문단·리스트)도 같은 깊이로 들여써서 한 묶음처럼 보이게 */
+.main-content :deep(.ql-editor h3 + p),
+.main-content :deep(.ql-editor h3 + ul),
+.main-content :deep(.ql-editor h3 + ol) {
     margin-left: 1.25rem;
 }
 </style>
