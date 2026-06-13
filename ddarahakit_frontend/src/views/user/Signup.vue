@@ -40,6 +40,9 @@ const signupResError = reactive({
   message: ''
 })
 
+//가입 처리 중 여부 (버튼 비활성화 + 로딩 표시)
+const isSubmitting = ref(false)
+
 //회원가입(개인) 본인확인 정보 객체
 const signupInput = reactive({
   email: '', //이메일(아이디)
@@ -271,6 +274,11 @@ const showTermsError = computed(() => coreFieldsValid.value && !agreeTerms.value
  * 서비스이용동의 화면으로 이동한다.
  */
 const submitForm = async () => {
+  //중복 제출 방지 (로딩 중에는 무시)
+  if (isSubmitting.value) {
+    return false
+  }
+
   //필수 약관 미동의 시 차단 (엔터 제출 등 우회 방지)
   if (!agreeTerms.value) {
     return false
@@ -281,37 +289,32 @@ const submitForm = async () => {
     return false
   }
 
+  //가입 처리 시작 → 버튼 비활성화 + 로딩 표시
+  isSubmitting.value = true
+  signupResError.toggle = false
+  signupResError.message = ''
+
   //API: 회원가입(개인사용자)
   const data = await api.userSignup(signupInput)
 
   if (data.success) {
-    router.push({ name: 'login' })
-
+    //가입 성공 → 이메일 인증 안내 페이지 (버튼은 비활성 유지한 채 이동)
+    router.push({ name: 'signupComplete', query: { email: signupInput.email } })
     return
-  } else if (data.code === '41001') {
-
-    //에러 처리
-    BasePupAlertInfo.text = data.errorMessage
-    BasePupAlertInfo.toggle = true
-    return false
   }
-  //제외 코드
-  else if (
-    data.code === '42901' ||
-    data.code === '42902' ||
-    data.code === '42910' ||
-    data.code === '41002' ||
-    data.code === '42911' ||
-    data.code === '42913'
-  ) {
-    return false
-  } else {
-    //에러 처리
-    BasePupAlertInfo.text = data.errorMessage
-    BasePupAlertInfo.toggle = true
+
+  //가입 실패 → 버튼 재활성화
+  isSubmitting.value = false
+
+  //필드 단위로 처리되는 코드는 상단 배너 생략
+  const silentCodes = ['42901', '42902', '42910', '41002', '42911', '42913']
+  if (silentCodes.includes(data.code)) {
     return false
   }
 
+  //그 외 실패는 상단 에러 배너로 안내
+  signupResError.message = data.message || data.errorMessage || '회원가입에 실패했습니다. 잠시 후 다시 시도해주세요.'
+  signupResError.toggle = true
   return false
 }
 
@@ -407,9 +410,12 @@ const submitForm = async () => {
             </p>
           </div>
 
-          <button :disabled="!isFormValid" id="submitBtn" @keypress.enter="submitForm" type="submit"
+          <button :disabled="!isFormValid || isSubmitting" id="submitBtn" @keypress.enter="submitForm" type="submit"
             class="submit-btn w-full py-4 bg-brand text-white rounded-xl font-bold text-lg shadow-lg shadow-blue-200 mt-4">
-            가입하기
+            <span v-if="isSubmitting" class="inline-flex items-center justify-center gap-2">
+              <i class="fa-solid fa-spinner fa-spin"></i> 가입 처리 중...
+            </span>
+            <span v-else>가입하기</span>
           </button>
         </v-form>
       </div>
