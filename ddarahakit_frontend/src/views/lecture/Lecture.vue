@@ -665,10 +665,19 @@ i {
     font-style: normal;
 }
 
-/* 수업 자료(QuillEditor read-only) 서식 — 소제목(h3, 1./2. 레벨) 들여쓰기 + 위 여백(한 줄 더) */
+/* 수업 자료(QuillEditor read-only) 서식 */
+/* h2(이모지 제목): 시작 전 한 줄 더 띄움 — 단 맨 처음 제목(학습 목표 등)은 제외 */
+.main-content :deep(.ql-editor h2:not(:first-child)) {
+    margin-top: 1.6em;
+}
+/* 소제목 h3(1./2./3.): 들여쓰기 + 시작 전 한 줄 더 띄움 */
 .main-content :deep(.ql-editor h3) {
     margin-left: 1.25rem;
     margin-top: 1.6em;
+}
+/* 섹션의 첫 소제목(1., h2 바로 다음)에는 추가 여백을 넣지 않음 */
+.main-content :deep(.ql-editor h2 + h3) {
+    margin-top: 0;
 }
 /* 소제목 바로 아래 본문(문단·리스트)도 같은 깊이로 들여써서 한 묶음처럼 보이게 */
 .main-content :deep(.ql-editor h3 + p),
