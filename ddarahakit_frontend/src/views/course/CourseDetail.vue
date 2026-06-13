@@ -277,6 +277,21 @@ const selectPreviewLecture = (lecture) => {
 
 const previewVideo = ref(null)
 
+/**
+ * 미리보기 영상이 준비되면 자동 재생.
+ * 소리 포함 자동재생이 브라우저 정책으로 막히면 음소거로라도 재생한다(사용자가 컨트롤로 해제 가능).
+ */
+const autoPlayVideo = (event) => {
+    const video = event.target
+    const playPromise = video.play()
+    if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => {
+            video.muted = true
+            video.play().catch(() => { })
+        })
+    }
+}
+
 const closeLecturePreview = () => {
     // 모달 닫을 때 재생 중지(소리 잔존 방지). v-if 제거로도 멈추지만 안전망으로 명시 정지.
     if (previewVideo.value) {
@@ -782,7 +797,7 @@ const addCart = async () => {
         <div class="modal-container relative w-full max-w-5xl bg-white rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] flex flex-col lg:flex-row">
             <div class="flex-grow bg-gray-100 relative aspect-video lg:aspect-auto flex items-center justify-center">
                 <video v-if="isPreviewModalOpen && lecturePreviewObject.videoUrl" ref="previewVideo"
-                    :src="lecturePreviewObject.videoUrl"
+                    :src="lecturePreviewObject.videoUrl" @loadeddata="autoPlayVideo"
                     class="absolute inset-0 w-full h-full object-contain bg-black" controls autoplay playsinline />
 
                 <div v-else class="absolute inset-0 bg-gray-200 flex items-center justify-center">

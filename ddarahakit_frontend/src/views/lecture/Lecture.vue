@@ -149,6 +149,21 @@ const getLectureDetail = async () => {
 }
 
 /**
+ * 영상이 준비되면 자동 재생.
+ * 소리 포함 자동재생이 브라우저 정책으로 막히면 음소거로라도 재생한다(사용자가 컨트롤로 해제 가능).
+ */
+const autoPlayVideo = (event) => {
+    const video = event.target
+    const playPromise = video.play()
+    if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => {
+            video.muted = true
+            video.play().catch(() => { })
+        })
+    }
+}
+
+/**
  * 강의 수강 완료
  */
 const lectureComplete = async () => {
@@ -300,7 +315,8 @@ onUnmounted(() => {
                 <section id="video-section" class="custom-scrollbar" :style="{ flex: videoFlex + ' 1 0%' }">
                     <!-- Video Player -->
                     <video v-if="lecture.videoUrl" :key="lecture.videoUrl"
-                        :src="encodeURI(lecture.videoUrl)" controls preload="metadata"
+                        :src="encodeURI(lecture.videoUrl)" controls autoplay playsinline preload="auto"
+                        @loadeddata="autoPlayVideo"
                         class="bg-black w-full aspect-video shrink-0">
                         브라우저가 video 태그를 지원하지 않습니다.
                     </video>
