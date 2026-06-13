@@ -664,4 +664,9 @@ onUnmounted(() => {
 i {
     font-style: normal;
 }
+
+/* 수업 자료(QuillEditor read-only) 서식 — 소제목(h3, 1./2. 레벨) 한 단계 들여쓰기 */
+.main-content :deep(.ql-editor h3) {
+    margin-left: 1.25rem;
+}
 </style>
