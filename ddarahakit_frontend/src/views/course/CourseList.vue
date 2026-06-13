@@ -76,7 +76,9 @@ const filteredSortedCourses = computed(() => {
         if (filters.free && c.salePrice !== 0) return false
         if (filters.discount && !(c.originalPrice > c.salePrice)) return false
         if (filters.reviewed && !(c.totalReviewsCount > 0)) return false
-        if (selectedLevels.value.length && !selectedLevels.value.includes(c.level)) return false
+        // 난이도 필터: 체크박스/URL은 한글 라벨(초급/중급/고급)이고 c.level 은 영문 코드(BEGINNER 등)이므로
+        // 한글 라벨인 c.levelDescription 과 비교한다.
+        if (selectedLevels.value.length && !selectedLevels.value.includes(c.levelDescription)) return false
         return true
     })
     const sorted = [...filtered]
@@ -420,7 +422,7 @@ watch(
                             </div>
                             <div class="flex items-center justify-between pt-4 border-t border-gray-50">
                                 <span class="font-bold text-gray-900">{{ formatPrice(course.salePrice) }}</span>
-                                <span class="text-xs text-gray-400">{{ course.level }}</span>
+                                <span class="text-xs text-gray-400">{{ course.levelDescription }}</span>
                             </div>
                         </div>
                     </RouterLink>
