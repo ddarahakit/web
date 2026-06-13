@@ -280,7 +280,7 @@ onMounted(() => {
                 <div class="bg-white rounded-3xl border border-slate-100 p-8 flex flex-col md:flex-row items-center justify-between gap-6">
                     <div class="flex items-center gap-5">
                         <div class="w-12 h-12 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center flex-shrink-0">
-                            <i class="fa-solid fa-user-minus text-xl"></i>
+                            <i class="fa-solid fa-user text-xl"></i>
                         </div>
                         <div>
                             <h4 class="text-sm font-bold text-slate-800">회원 탈퇴</h4>
@@ -290,7 +290,7 @@ onMounted(() => {
                     <button
                         @click="resetPassword"
                         class="px-6 py-2.5 text-xs font-bold text-red-400 border border-red-100 rounded-xl hover:bg-red-50 transition-all">
-                        비밀번호 재설정 메일 발송
+                        탈퇴하기
                     </button>
                 </div>
             </div>
