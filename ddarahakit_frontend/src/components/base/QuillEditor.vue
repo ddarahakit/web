@@ -167,7 +167,23 @@ const initQuill = () => {
     if (!editorRef.value) return
 
     const modules = {
-        syntax: { hljs },
+        syntax: {
+            hljs,
+            // 코드블록에서 인식·하이라이트할 언어 목록 (미등록 언어는 plain으로 강등됨)
+            languages: [
+                { key: 'plain', label: 'Plain' },
+                { key: 'yaml', label: 'YAML' },
+                { key: 'json', label: 'JSON' },
+                { key: 'bash', label: 'Bash' },
+                { key: 'dockerfile', label: 'Dockerfile' },
+                { key: 'properties', label: 'Properties' },
+                { key: 'java', label: 'Java' },
+                { key: 'javascript', label: 'JavaScript' },
+                { key: 'sql', label: 'SQL' },
+                { key: 'xml', label: 'HTML/XML' },
+                { key: 'css', label: 'CSS' }
+            ]
+        },
         clipboard: {
             matchers: [
                 [Node.TEXT_NODE, (node) => textPasteHandler(node.data)]
