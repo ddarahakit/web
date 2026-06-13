@@ -1,0 +1,20 @@
+package com.ddarahakit.backend.domain.course.service;
+
+import com.ddarahakit.backend.domain.course.model.Lecture;
+import com.ddarahakit.backend.domain.course.model.LectureDto;
+import com.ddarahakit.backend.domain.course.repository.LectureRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@RequiredArgsConstructor
+@Service
+public class LectureService {
+    private final LectureRepository lectureRepository;
+
+
+    public LectureDto.LectureRes lectureCreate(LectureDto.LectureReq dto) {
+        Lecture lecture = lectureRepository.save(dto.toEntity());
+
+        return LectureDto.LectureRes.of(lecture);
+    }
+}

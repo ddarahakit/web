@@ -1,0 +1,80 @@
+HELP.md
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Gradle ###
+.gradle
+**/build/
+!src/**/build/
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# Avoid ignore Gradle wrappper properties
+!gradle-wrapper.properties
+
+# Cache of project
+.gradletasknamecache
+
+
+application.yml
+# 예외: 모놀리식의 기동 필수 base application.yml 은 추적한다.
+# 전역 application.yml 무시 규칙 때문에 빠지면, git 기반 클린 재빌드 이미지가 설정을 못 찾아
+# 기동 실패(Failed to configure a DataSource: 'url' attribute is not specified)한다.
+# 이 파일은 비밀값을 ${ENV} 플레이스홀더로만 참조(평문 비밀 없음) → 추적 안전.
+# (base 는 active 프로파일만 지정, 실제 값은 추적되는 application-dev/prod.yml 에 있음)
+!src/main/resources/application.yml
+keystore.p12
+gradle/*
+# db/ 아래 라이브 MariaDB 데이터파일은 무시하되, 마이그레이션/백필 SQL 스크립트(db/migration/)는 추적.
+# (디렉터리 자체를 통째로 ignore 하면 하위 negation 이 안 먹으므로 db/* 로 내용만 무시)
+db/*
+!db/migration/
+db/migration/*
+!db/migration/*.sql
+*.p12
+.env
+.env-prod
+
+# 로컬 도구/설정 및 별도 저장소
+.bkit/
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+docs/

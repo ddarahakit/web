@@ -1,0 +1,46 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+.vscode
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+
+# 환경변수
+.env*
+# 단, 프로덕션 빌드 환경값은 추적(CI/Kaniko 빌드가 레포에서 사용). 민감 서버비밀 아님(클라이언트 번들에 인라인됨)
+!.env.production
+
+
+
+
+# 기타
+# package-lock.json 은 추적(npm ci 재현성 + Kaniko 빌드 시 필요)
+
+*.crt
+*.key
+*.pem
+*keystore*
+vite.config.js
+
+public/images
+

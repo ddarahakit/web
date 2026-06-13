@@ -1,0 +1,286 @@
+@import "tailwindcss";
+
+/* NanumSquareRound 폰트 정의 */
+@font-face {
+    font-family: 'NanumSquareRound';
+    src: url('../fonts/NanumSquareRoundOTFL.otf') format('opentype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'NanumSquareRound';
+    src: url('../fonts/NanumSquareRoundOTFR.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'NanumSquareRound';
+    src: url('../fonts/NanumSquareRoundOTFB.otf') format('opentype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'NanumSquareRound';
+    src: url('../fonts/NanumSquareRoundOTFEB.otf') format('opentype');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+@theme {
+    --color-brand: #14BCED;
+    --color-brand-dark: #0ea5e9;
+    --font-family-sans: 'NanumSquareRound', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+:root {
+    --brand-color: #14BCED;
+    --brand-dark: #0ea5e9;
+    --bg-main: #ffffff;
+    --border-brand: #14BCED !important;
+    --border-transparent: transparent;
+    /* 배경색을 더 밝고 흐린 느낌으로 조정 (f8fafc -> fafbfd) */
+    --bg-sub: #fafbfd;
+    --border-color: #f1f5f9;
+    --text-main: #1e293b;
+    --text-sub: #64748b;
+    --sidebar-width: 320px;
+}
+
+/* ===== 페이지 전환 효과 (fade + 살짝 위로 슬라이드) =====
+   레이아웃의 중첩 <router-view> 에서 사용. mode="out-in" 으로 겹침/점프 방지. */
+.page-enter-active,
+.page-leave-active {
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.page-enter-from {
+    opacity: 0;
+    transform: translateY(8px);
+}
+
+.page-leave-to {
+    opacity: 0;
+    transform: translateY(-8px);
+}
+
+/* 모션 최소화 선호 사용자는 전환 비활성화(접근성) */
+@media (prefers-reduced-motion: reduce) {
+    .page-enter-active,
+    .page-leave-active {
+        transition: none;
+    }
+    .page-enter-from,
+    .page-leave-to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+body {
+    font-family: 'NanumSquareRound', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background-color: #ffffff;
+    color: #1f2937;
+    font-weight: 400;
+}
+
+/* 폰트 굵기 유틸리티 클래스 */
+.font-light {
+    font-weight: 300 !important;
+}
+
+.font-normal {
+    font-weight: 400 !important;
+}
+
+.font-bold {
+    font-weight: 700 !important;
+}
+
+.font-extrabold {
+    font-weight: 800 !important;
+}
+
+
+.focus-ring:focus {
+    outline: none;
+    border-color: #14BCED;
+    box-shadow: 0 0 0 3px rgba(20, 188, 237, 0.1);
+}
+
+
+
+.btn-primary {
+    background-color: var(--brand-color);
+    color: white;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: var(--brand-dark);
+    transform: translateY(-1px);
+}
+
+/* =========================================================================
+   전역 버튼 어포던스 (앱 전역 공통)
+   - 모든 native <button> / [role="button"] 가 "버튼답게" 보이도록 기본
+     인터랙션(커서/트랜지션/active 눌림/focus-visible/disabled)을 부여한다.
+   - :where() 로 명시도 0 → 각 화면의 Tailwind 유틸(hover:bg-* 등)이 항상 우선.
+   - 색/배경/크기 등 디자인은 건드리지 않고 "어포던스"만 추가(재디자인 아님).
+   ========================================================================= */
+:where(button:not(:disabled), [role="button"]:not([aria-disabled="true"])) {
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.15s ease,
+        background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease,
+        opacity 0.15s ease;
+}
+
+/* 누름(active): 살짝 가라앉는 피드백 */
+:where(button:not(:disabled), [role="button"]:not([aria-disabled="true"])):active {
+    transform: translateY(1px);
+}
+
+/* 키보드 포커스 접근성 */
+:where(button, [role="button"]):focus-visible {
+    outline: 3px solid rgba(20, 188, 237, 0.5);
+    outline-offset: 2px;
+}
+
+/* 비활성: 클릭 불가 표시 + 흐림 */
+:where(button:disabled, button[disabled], [role="button"][aria-disabled="true"]) {
+    cursor: not-allowed;
+    opacity: 0.55;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* 아이콘 버튼(텍스트 없이 아이콘만 들어간 버튼) 가벼운 hover 음영.
+   .icon-btn 을 명시한 경우에만 적용(오작동 방지). */
+.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    transition: background-color 0.15s ease, transform 0.12s ease, color 0.15s ease;
+}
+
+.icon-btn:hover:not(:disabled) {
+    background-color: rgba(15, 23, 42, 0.06);
+}
+
+.icon-btn:active:not(:disabled) {
+    transform: scale(0.92);
+}
+
+/* 클릭 가능한 비-버튼 요소(카드/탭/오버레이 등)에 커서 표시용 유틸 */
+.is-clickable {
+    cursor: pointer;
+}
+
+/* 모션 최소화 선호 사용자: transform 비활성(접근성) */
+@media (prefers-reduced-motion: reduce) {
+    :where(button, [role="button"]) {
+        transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+    }
+    :where(button, [role="button"]):active,
+    .icon-btn:active:not(:disabled) {
+        transform: none;
+    }
+}
+
+/* 스크롤바 디자인 정돈 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-sub);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+
+.rating_r i::before {
+    font-family: 'FontAwesome';
+    content: "\f006";
+    font-style: normal;
+    color: rgb(250 204 21 / var(--tw-text-opacity, 1));
+}
+
+.rating_r_1 i:first-child::before {
+    content: "\f005";
+}
+
+.rating_r_2 i:first-child::before {
+    content: "\f005";
+}
+
+.rating_r_2 i:nth-child(2)::before {
+    content: "\f005";
+}
+
+.rating_r_3 i:first-child::before {
+    content: "\f005";
+}
+
+.rating_r_3 i:nth-child(2)::before {
+    content: "\f005";
+}
+
+.rating_r_3 i:nth-child(3)::before {
+    content: "\f005";
+}
+
+.rating_r_4 i:first-child::before {
+    content: "\f005";
+}
+
+.rating_r_4 i:nth-child(2)::before {
+    content: "\f005";
+}
+
+.rating_r_4 i:nth-child(3)::before {
+    content: "\f005";
+}
+
+.rating_r_4 i:nth-child(4)::before {
+    content: "\f005";
+}
+
+.rating_r_5 i:first-child::before {
+    content: "\f005";
+}
+
+.rating_r_5 i:nth-child(2)::before {
+    content: "\f005";
+}
+
+.rating_r_5 i:nth-child(3)::before {
+    content: "\f005";
+}
+
+.rating_r_5 i:nth-child(4)::before {
+    content: "\f005";
+}
+
+.rating_r_5 i:nth-child(5)::before {
+    content: "\f005";
+}
+
+/* ===== 페이지 이동 프로그레스 바 (NProgress) — 브랜드 색, 화면 최상단 ===== */
+#nprogress .bar {
+    background: var(--color-brand, #14BCED);
+    height: 4px;
+    z-index: 1031;   /* 헤더(z-50) 위에 보이도록 */
+}
+#nprogress .peg {
+    box-shadow: 0 0 10px var(--color-brand, #14BCED), 0 0 5px var(--color-brand, #14BCED);
+}

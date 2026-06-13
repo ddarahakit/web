@@ -1,0 +1,116 @@
+server:
+  port: 8443
+  error:
+    whitelabel:
+      enabled: false  # 기본 whitelabel 에러 페이지 비활성화
+    path: /error
+  ssl:
+    enabled: true
+    key-store: "ddarahakit.p12"
+    key-store-type: "PKCS12"
+    key-store-password: ${SSL_KEY_STORE_PASSWORD}
+
+spring:
+  application:
+    name: backend
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: ${GOOGLE_REDIRECT_URI}
+            scope:
+              - email
+              - profile
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            client-name: Kakao
+            authorization-grant-type: authorization_code
+            redirect-uri: ${KAKAO_REDIRECT_URI}
+            scope: profile_nickname
+            client-authentication-method: client_secret_post
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_ADDR}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+            required: true
+          auth: true
+          timeout: 5000
+
+  datasource:
+    url: ${DB_URL}
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.boot.autoconfigure.security: DEBUG
+    org.springframework.http: DEBUG
+
+jwt:
+  secret:
+    key: ${JWT_SECRET}
+
+portone:
+  portone_secret: ${PORTONE_SECRET}
+
+app:
+  domain:
+    server: "https://www.ddarahakit.com"        # OAuth 로그인 성공 후 리다이렉트할 프론트 정규 주소
+    cookie: "ddarahakit.com"
+    # CORS 허용 오리진 (쉼표 구분). apex + www 둘 다 프론트로 서빙하므로 둘 다 허용.
+    allowed-origins: "https://www.ddarahakit.com,https://ddarahakit.com"
+  aes:
+    key: ${AES_SECRET_KEY}                       # 32자(AES-256). 쿠키 암복호화에 사용 (Aes256)
+  token:
+    access-max-age: 1800000    # 30분 (밀리초)
+    refresh-max-age: 604800000  # 7일 (밀리초)
+    # Domain=ddarahakit.com → www/apex/api 등 모든 서브도메인에서 쿠키 공유 (프론트↔API 인증 유지)
+    access-format: "ATOKEN=%s; HttpOnly; Secure; SameSite=Strict; Domain=ddarahakit.com; Path=/; Max-Age=%d"
+    refresh-format: "RTOKEN=%s; HttpOnly; Secure; SameSite=Strict; Domain=ddarahakit.com; Path=/; Max-Age=%d"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics # 원하는 엔드포인트 추가
+  endpoint:
+    health:
+      show-details: always   # "when-authorized"로 설정하면 인증 필요함
+  health:
+    db:
+      enabled: true
+    mail:
+      enabled: false   # 메일 서버 장애가 앱 health(프로브)를 DOWN 시키지 않도록 제외
+
+project:
+  upload:
+    path: ${UPLOAD_PATH}
