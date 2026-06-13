@@ -141,6 +141,21 @@ const syncPageFromQuery = () => {
     pageSize.value = Number.isFinite(size) && size > 0 ? size : DEFAULT_PAGE_SIZE
 }
 
+// 난이도(level) 필터를 URL 쿼리(?level=초급,중급)에 반영/복원한다 (페이지네이션과 동일 패턴).
+const LEVELS = ['초급', '중급', '고급']
+
+// 체크된 난이도를 항상 LEVELS 순서로 정규화한 CSV. URL 값과 1:1 비교해 동기화 루프를 막는다.
+const levelsCsv = computed(() => LEVELS.filter(l => selectedLevels.value.includes(l)).join(','))
+
+const syncLevelsFromQuery = () => {
+    // URL 쿼리(level)에서 체크된 난이도를 복원한다.
+    const raw = route.query.level
+    const str = Array.isArray(raw) ? raw.join(',') : (raw || '')
+    const picked = str.split(',').map(s => s.trim()).filter(v => LEVELS.includes(v))
+    // 유효값만, LEVELS 순서로 정규화해 저장
+    selectedLevels.value = LEVELS.filter(l => picked.includes(l))
+}
+
 const getAverageRating = (course) => {
     if (course.totalReviewsCount === 0) return "0.0";
     return (
@@ -202,6 +217,7 @@ onMounted(() => {
     getCategoryList()
     //코스 목록 조회
     syncPageFromQuery()
+    syncLevelsFromQuery()
     getCourseList()
 
 })
@@ -212,6 +228,24 @@ watch(
         syncPageFromQuery()
     }
 )
+
+// URL 쿼리 level 변경(뒤로가기/공유 링크/카테고리 이동 등) → 체크박스 상태 복원
+watch(
+    () => route.query.level,
+    () => {
+        syncLevelsFromQuery()
+    }
+)
+
+// 체크박스로 난이도 변경 → URL 쿼리에 반영(+1페이지로 리셋). URL 을 단일 소스로 두어 공유/북마크/새로고침 시 복원된다.
+watch(levelsCsv, (csv) => {
+    const current = Array.isArray(route.query.level) ? route.query.level.join(',') : (route.query.level || '')
+    if (current === csv) return // URL 과 동일하면 무시(동기화 루프 방지)
+    const query = { ...route.query, page: '1' }
+    if (csv) query.level = csv
+    else delete query.level
+    router.push({ query })
+})
 
 watch(
     () => route.params.categorySlug,
@@ -230,9 +264,9 @@ watch(
     }
 )
 
-// 정렬/필터 변경 시 1페이지로 리셋
+// 정렬/필터 변경 시 1페이지로 리셋 (난이도는 URL 반영 watch 에서 page=1 처리하므로 제외)
 watch(
-    () => [sortBy.value, filters.free, filters.discount, filters.reviewed, selectedLevels.value.join(',')],
+    () => [sortBy.value, filters.free, filters.discount, filters.reviewed],
     () => {
         currentPage.value = 1
     }
