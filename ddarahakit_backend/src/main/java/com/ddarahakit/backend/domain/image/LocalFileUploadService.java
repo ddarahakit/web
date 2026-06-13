@@ -63,7 +63,9 @@ public class LocalFileUploadService implements FileUploadService {
 
     @Override
     public ResponseEntity<byte[]> display(String fileName) {
-        File file = new File(defaultUploadPath + "\\" + fileName);
+        // 경로 구분자(\) 하드코딩·OS 의존성 제거: 백슬래시→슬래시 정규화 후 선행 슬래시 제거하여 업로드 루트 기준 상대경로로 해석
+        String relativePath = fileName.replace("\\", "/").replaceFirst("^/+", "");
+        File file = new File(defaultUploadPath, relativePath);
 
         ResponseEntity<byte[]> result = null;
 
