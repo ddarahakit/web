@@ -31,7 +31,7 @@ const currentPage = ref(1)
 // 정렬/필터 상태
 const sortBy = ref('popular') // popular(인기순) | newest(최신순) | rating(평점순)
 const filters = reactive({ free: false, discount: false, reviewed: false })
-const selectedLevels = ref([]) // ['초급','중급','고급'] 중 체크된 난이도
+const selectedLevels = ref([]) // ['쉬움','보통','어려움'] 중 체크된 난이도
 
 /**
  * 코스 목록 조회
@@ -76,8 +76,8 @@ const filteredSortedCourses = computed(() => {
         if (filters.free && c.salePrice !== 0) return false
         if (filters.discount && !(c.originalPrice > c.salePrice)) return false
         if (filters.reviewed && !(c.totalReviewsCount > 0)) return false
-        // 난이도 필터: 체크박스/URL은 한글 라벨(초급/중급/고급)이고 c.level 은 영문 코드(BEGINNER 등)이므로
-        // 한글 라벨인 c.levelDescription 과 비교한다.
+        // 난이도 필터: 체크박스/URL은 표시 라벨(쉬움/보통/어려움)이고 c.level 은 영문 코드(BEGINNER 등)이므로
+        // 표시 라벨인 c.levelDescription 과 비교한다.
         if (selectedLevels.value.length && !selectedLevels.value.includes(c.levelDescription)) return false
         return true
     })
@@ -143,8 +143,8 @@ const syncPageFromQuery = () => {
     pageSize.value = Number.isFinite(size) && size > 0 ? size : DEFAULT_PAGE_SIZE
 }
 
-// 난이도(level) 필터를 URL 쿼리(?level=초급,중급)에 반영/복원한다 (페이지네이션과 동일 패턴).
-const LEVELS = ['초급', '중급', '고급']
+// 난이도(level) 필터를 URL 쿼리(?level=쉬움,보통)에 반영/복원한다 (페이지네이션과 동일 패턴).
+const LEVELS = ['쉬움', '보통', '어려움']
 
 // 체크된 난이도를 항상 LEVELS 순서로 정규화한 CSV. URL 값과 1:1 비교해 동기화 루프를 막는다.
 const levelsCsv = computed(() => LEVELS.filter(l => selectedLevels.value.includes(l)).join(','))
@@ -352,19 +352,19 @@ watch(
                     <h3 class="font-bold text-lg mb-4 mt-8">난이도</h3>
                     <div class="space-y-4">
                         <label class="flex items-center gap-3 cursor-pointer group">
-                            <input type="checkbox" value="초급" v-model="selectedLevels"
+                            <input type="checkbox" value="쉬움" v-model="selectedLevels"
                                 class="w-4 h-4 rounded border-gray-300 text-brand focus:ring-brand" />
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900">초급</span>
+                            <span class="text-sm text-gray-600 group-hover:text-gray-900">쉬움</span>
                         </label>
                         <label class="flex items-center gap-3 cursor-pointer group">
-                            <input type="checkbox" value="중급" v-model="selectedLevels"
+                            <input type="checkbox" value="보통" v-model="selectedLevels"
                                 class="w-4 h-4 rounded border-gray-300 text-brand focus:ring-brand" />
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900">중급</span>
+                            <span class="text-sm text-gray-600 group-hover:text-gray-900">보통</span>
                         </label>
                         <label class="flex items-center gap-3 cursor-pointer group">
-                            <input type="checkbox" value="고급" v-model="selectedLevels"
+                            <input type="checkbox" value="어려움" v-model="selectedLevels"
                                 class="w-4 h-4 rounded border-gray-300 text-brand focus:ring-brand" />
-                            <span class="text-sm text-gray-600 group-hover:text-gray-900">고급</span>
+                            <span class="text-sm text-gray-600 group-hover:text-gray-900">어려움</span>
                         </label>
                     </div>
                 </div>

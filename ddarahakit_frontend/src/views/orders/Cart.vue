@@ -301,6 +301,16 @@ onMounted(async () => {
 
 <template>
     <main class="pt-24 max-w-7xl mx-auto px-6 py-12 flex-col">
+        <!-- 테스트 결제 안내 -->
+        <div class="bg-blue-50/60 border border-blue-100 rounded-2xl p-4 md:p-5 mb-8 flex items-start gap-3">
+            <i class="fa-solid fa-circle-info text-brand mt-0.5 shrink-0"></i>
+            <p class="text-sm text-slate-600 leading-relaxed">
+                <span class="font-semibold text-slate-800">안내</span> ·
+                현재 결제는 <b class="font-semibold text-slate-700">포트원(PortOne)의 토스페이</b>로 연동한 <b class="font-semibold text-slate-700">테스트 결제</b>입니다.
+                실제로 <b class="font-semibold text-slate-700">금액이 청구되거나 돈이 빠져나가지 않으니</b> 안심하고 결제 과정을 체험해 보세요.
+            </p>
+        </div>
+
         <h2 class="text-2xl font-bold text-gray-900 mb-8 px-1">수강 바구니</h2>
 
         <!-- 스켈레톤 UI -->
