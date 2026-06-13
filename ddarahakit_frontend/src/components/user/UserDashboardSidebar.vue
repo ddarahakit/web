@@ -19,12 +19,6 @@ const menuItems = computed(() => [
         to: { name: 'dashboard' }
     },
     {
-        key: 'profileEdit',
-        label: '프로필 설정',
-        icon: 'fa-solid fa-user-gear text-sm',
-        to: { name: 'profileEdit' }
-    },
-    {
         key: 'accountSecurity',
         label: '비밀번호 변경',
         icon: 'fa-solid fa-lock text-sm',

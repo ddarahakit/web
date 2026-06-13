@@ -9,8 +9,6 @@ import { userImageUrl } from '@/utils/image'
 const router = useRouter()
 const authStore = useAuthStore()
 
-const profileImageInput = ref(null)
-
 // 프로필 정보
 const userProfile = ref({
     idx: 0,
@@ -70,18 +68,12 @@ const updateProfile = async () => {
     }
 }
 
-// 프로필 수정 취소
+// 프로필 수정 취소 → 대시보드로 이동
 const cancelEdit = () => {
-    userProfile.value = { ...originalProfile.value }
-    userPassword.value = { originPassword: '', newPassword1: '', newPassword2: '' }
-    isEditPassword.value = false
+    router.push({ name: 'dashboard' })
 }
 
 // 프로필 이미지 변경
-const profileImageOpen = () => {
-    profileImageInput.value.click()
-}
-
 const updateProfileImage = async (event) => {
     const file = event.target.files[0]
     if (!file) return
@@ -93,6 +85,8 @@ const updateProfileImage = async (event) => {
     if (data.success && data.results) {
         userProfile.value.profileImageUrl = data.results.profileImageUrl
         originalProfile.value.profileImageUrl = data.results.profileImageUrl
+        // 헤더 등에서 참조하는 스토리지 값도 갱신
+        authStore.setUserProfileImage(data.results.profileImageUrl)
         showAlert('success', '프로필 이미지가 변경되었습니다.')
     }
 }
@@ -194,11 +188,9 @@ onMounted(() => {
                                 </div>
                                 <label
                                     for="avatar-upload"
-                                    @click.prevent="profileImageOpen"
                                     class="absolute bottom-1 right-1 w-10 h-10 bg-white text-slate-600 rounded-xl flex items-center justify-center shadow-lg cursor-pointer hover:bg-brand hover:text-white transition-all border border-slate-100">
                                     <i class="fa-solid fa-camera text-sm"></i>
                                     <input
-                                        ref="profileImageInput"
                                         type="file"
                                         id="avatar-upload"
                                         class="hidden"

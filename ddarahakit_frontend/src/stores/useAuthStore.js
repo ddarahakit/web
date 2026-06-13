@@ -35,7 +35,8 @@ const useAuthStore = defineStore('auth', () => {
                 userIdx: results.idx,
                 userEmail: results.email,
                 userName: results.name,
-                userRole: results.role
+                userRole: results.role,
+                userProfileImage: results.profileImageUrl
             }
         } else if (mode === 'LXTS') {
             //기존 스토리지 정보 획득
@@ -198,6 +199,37 @@ const useAuthStore = defineStore('auth', () => {
     }
 
     /**
+     * 프로필 이미지 저장 정보 획득
+     *
+     * 스토리지에 저장된 사용자 프로필 이미지 URL 을 반환한다.
+     */
+    const getUserProfileImage = () => {
+        const store = encryptStorage.getItem('store')
+
+        if (!store || !store.userProfileImage) {
+            return null
+        }
+
+        return store.userProfileImage
+    }
+
+    /**
+     * 프로필 이미지 갱신
+     *
+     * 이미지 변경 시 스토리지 값을 동기화해 헤더 등에 반영되도록 한다.
+     */
+    const setUserProfileImage = (url) => {
+        const store = encryptStorage.getItem('store')
+
+        if (!store) {
+            return
+        }
+
+        store.userProfileImage = url
+        encryptStorage.setItem('store', JSON.stringify(store))
+    }
+
+    /**
      * 아이디 저장 정보 삭제
      *
      * 로그인 '아이디 저장' 해제시 스토리지에 해당 값을 삭제한다.
@@ -230,9 +262,11 @@ const useAuthStore = defineStore('auth', () => {
         getUserName,
         getUserIdx,
         getUserRole,
+        getUserProfileImage,
+        setUserProfileImage,
         removeRecycle,
         initSettings,
-        
+
     }
 })
 
