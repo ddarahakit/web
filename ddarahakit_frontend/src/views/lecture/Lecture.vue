@@ -35,10 +35,21 @@ const lecture = ref({
 });
 
 // Sidebar state (closed by default on mobile)
-const sidebarClosed = ref(true);
+// 강의 이동은 window.location 으로 전체 새로고침되므로, 열림/닫힘 상태를
+// localStorage 에 저장·복원해 다음/이전/완료로 이동해도 같은 상태를 유지한다.
+const SIDEBAR_STORAGE_KEY = 'lectureSidebarClosed'
+
+const loadSidebarClosed = () => {
+    const saved = localStorage.getItem(SIDEBAR_STORAGE_KEY)
+    // 저장값이 없으면 기본 닫힘(true)
+    return saved === null ? true : saved === 'true'
+}
+
+const sidebarClosed = ref(loadSidebarClosed());
 
 const toggleSidebar = () => {
     sidebarClosed.value = !sidebarClosed.value;
+    localStorage.setItem(SIDEBAR_STORAGE_KEY, String(sidebarClosed.value))
 };
 
 // Notes section state
