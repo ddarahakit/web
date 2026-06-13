@@ -33,8 +33,9 @@ const goProjects = () => router.push({ name: 'projectManagement' })
                     </div>
                     <h3 class="text-xl font-bold text-gray-900 mb-3">실제 수업</h3>
                     <p class="text-gray-500 leading-relaxed mb-6">
-                        제가 수업하면서 직접 녹화한 영상을 누구나 강의처럼 볼 수 있도록 구현했습니다.
-                        과목별로 섹션·강의 커리큘럼으로 정리되어 있고, 강의를 선택하면 실제 녹화 영상이 바로 재생됩니다.
+                        이 영상들은 온라인 강의가 아니라 현장(오프라인)에서 진행한 실제 수업을, 디스코드 화면 공유 방송을 학생이 직접 녹화한 것입니다.
+                        과목별 섹션·강의 커리큘럼으로 정리되어 있고, 강의를 선택하면 녹화 영상이 바로 재생됩니다.
+                        별도 마이크 없이 진행되어 음성·화면 품질이 다소 고르지 않을 수 있는 점 양해 부탁드립니다.
                     </p>
                     <button @click="goCourseList" class="text-brand font-semibold hover:underline">
                         실제 수업 보러가기 <i class="fa-solid fa-chevron-right ml-1 text-xs"></i>
