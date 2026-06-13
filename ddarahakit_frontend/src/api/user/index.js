@@ -545,61 +545,6 @@ const getPayments = async (req = {}) => {
 
 
 /**
- * 포인트 조회 (잔액 + 이력)
- *
- * GET /user/points → PointRes { balance, history[] }
- */
-const getPoints = async () => {
-    //결과
-    let data = {}
-
-    //API 호출
-    await $axios
-        .get('/user/points')
-        .then((res) => {
-            //성공
-            data = res.data
-        })
-        .catch((error) => {
-            //실패
-            data = error.data
-        })
-
-    return data
-}
-
-
-/**
- * 포인트 충전
- *
- * POST /user/points/charge { amount(>=1), memo? } → PointRes
- */
-const chargePoints = async (req) => {
-    //요청 정보
-    const chargeInfo = {
-        amount: req.amount,
-        memo: req.memo
-    }
-    //결과
-    let data = {}
-
-    //API 호출
-    await $axios
-        .post('/user/points/charge', chargeInfo)
-        .then((res) => {
-            //성공
-            data = res.data
-        })
-        .catch((error) => {
-            //실패
-            data = error.data
-        })
-
-    return data
-}
-
-
-/**
  * 보안 설정 조회
  *
  * GET /user/security/settings → { loginAlertEnabled, twoFactorEnabled }
@@ -735,5 +680,5 @@ const getWeeklyStudy = async () => {
 export default {
     userSignup, userLogin, userLogout, userTokenRefresh, userTokenCheck, userProfile, getPaidCourseList, getMyQuestionList, getMyPostList, getMyReviewList,
     emailDuplicateCheck, loginCallback, updateProfile, updatePassword, resetPasswordReq, resetPassword, checkUuidExpired, emailVerify, updateProfileImage,
-    getPayments, getPoints, chargePoints, getSecuritySettings, updateSecuritySettings, getSessions, revokeSession, getWeeklyStudy
+    getPayments, getSecuritySettings, updateSecuritySettings, getSessions, revokeSession, getWeeklyStudy
 }
