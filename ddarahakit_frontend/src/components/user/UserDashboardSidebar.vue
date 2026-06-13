@@ -26,7 +26,7 @@ const menuItems = computed(() => [
     },
     {
         key: 'accountSecurity',
-        label: '계정 보안',
+        label: '비밀번호 변경',
         icon: 'fa-solid fa-lock text-sm',
         to: { name: 'accountSecurity' }
     },
