@@ -278,7 +278,7 @@ watch(
 <template>
 
     <!-- 실제 수업 안내 -->
-    <div class="pt-24 max-w-7xl mx-auto px-6">
+    <div class="pt-24 max-w-7xl mx-auto px-6 space-y-3">
         <div class="bg-blue-50/60 border border-blue-100 rounded-2xl p-4 md:p-5 flex items-start gap-3">
             <i class="fa-solid fa-circle-info text-brand mt-0.5 shrink-0"></i>
             <p class="text-sm text-slate-600 leading-relaxed">
@@ -287,6 +287,15 @@ watch(
                 뒷자리에서 화면이 잘 보이지 않는 학생들을 위해 <b class="font-semibold text-slate-700">디스코드로 화면을 공유</b>하며 수업했고,
                 그 방송을 <b class="font-semibold text-slate-700">학생이 직접 녹화</b>했습니다.
                 <b class="font-semibold text-slate-700">별도 마이크 없이</b> 진행되어 음성·화면 품질이 다소 고르지 않을 수 있는 점 양해 부탁드립니다.
+            </p>
+        </div>
+        <!-- 테스트 결제 안내 -->
+        <div class="bg-blue-50/60 border border-blue-100 rounded-2xl p-4 md:p-5 flex items-start gap-3">
+            <i class="fa-solid fa-circle-info text-brand mt-0.5 shrink-0"></i>
+            <p class="text-sm text-slate-600 leading-relaxed">
+                <span class="font-semibold text-slate-800">안내</span> ·
+                코스에 표시된 금액으로 결제할 수 있지만, 현재 결제는 <b class="font-semibold text-slate-700">포트원(PortOne)의 토스페이</b>로 연동한 <b class="font-semibold text-slate-700">테스트 결제</b>입니다.
+                실제로 <b class="font-semibold text-slate-700">금액이 청구되거나 돈이 빠져나가지 않으니</b> 안심하고 결제 과정을 체험해 보세요.
             </p>
         </div>
     </div>
