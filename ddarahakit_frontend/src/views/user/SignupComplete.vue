@@ -16,10 +16,6 @@ const goLogin = () => router.push({ name: 'login' })
 <template>
   <main class="pt-24 max-w-7xl mx-auto px-6 py-12 flex items-center justify-center">
     <div class="max-w-lg w-full bg-white rounded-3xl shadow-xl shadow-blue-100/50 border border-gray-100 p-8 md:p-10 text-center">
-      <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center mx-auto mb-6">
-        <i class="fa-solid fa-envelope-circle-check text-3xl"></i>
-      </div>
-
       <h1 class="text-2xl font-bold text-gray-900 mb-3">회원가입이 완료되었습니다 🎉</h1>
 
       <p class="text-gray-500 leading-relaxed mb-2">
