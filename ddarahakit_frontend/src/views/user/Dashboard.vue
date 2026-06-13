@@ -3,8 +3,19 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import useAuthStore from '@/stores/useAuthStore'
 import api from '@/api/user'
 import UserDashboardSidebar from '@/components/user/UserDashboardSidebar.vue'
+import { userImageUrl } from '@/utils/image'
 
 const authStore = useAuthStore()
+
+// 사용자 프로필 (자기소개 등)
+const userProfile = ref({ introduction: '' })
+
+const getUserProfile = async () => {
+    const data = await api.userProfile()
+    if (data.success && data.results) {
+        userProfile.value = data.results
+    }
+}
 
 // 구매 코스 목록
 const paidCourseList = ref([])
@@ -161,6 +172,7 @@ const getWeeklyStudy = async () => {
 }
 
 onMounted(() => {
+    getUserProfile()
     getPaidCourseList()
     loadTabData('questions')
     getWeeklyStudy()
@@ -181,15 +193,6 @@ onMounted(() => {
                             좋은 아침입니다, {{ authStore.getUserName() }}님! ☕
                         </h1>
                         <p class="text-slate-500 text-sm mt-1">오늘도 지식을 넓힐 준비가 되셨나요?</p>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <button
-                            class="px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors">
-                            출석 체크
-                        </button>
-                        <button class="btn-primary px-6 py-2.5 rounded-xl font-bold text-sm">
-                            학습 이어가기
-                        </button>
                     </div>
                 </header>
 
@@ -216,21 +219,16 @@ onMounted(() => {
                         <div class="relative">
                             <div
                                 class="bg-white w-24 h-24 md:w-32 md:h-32 rounded-3xl overflow-hidden border-4 border-black/20 shadow-xl">
-                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User Avatar"
-                                    class="w-full h-full object-cover">
+                                <img :src="userImageUrl(userProfile.profileImageUrl) || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'"
+                                    alt="User Avatar" class="w-full h-full object-cover">
                             </div>
-                            <button
-                                class="absolute -bottom-2 -right-2 w-10 h-10 bg-white text-gray-500 rounded-xl flex items-center justify-center border-4 border-black/20 hover:bg-slate-50 transition-colors shadow-lg">
-                                <i class="fa-solid fa-camera text-sm"></i>
-                            </button>
                         </div>
                         <div class="flex-grow text-center md:text-left">
                             <h2 class="text-2xl md:text-3xl font-bold mb-2">
                                 {{ authStore.getUserName() }}
-                                <span class="bg-white/20 text-[11px] px-2 py-1 rounded-md ml-2 font-medium">프리미엄 멤버</span>
                             </h2>
                             <p class="text-blue-50 text-sm mb-6 opacity-90">
-                                안녕하세요! 풀스택 개발자를 꿈꾸는 입문자입니다. 🚀
+                                {{ userProfile.introduction || '아직 자기소개가 없습니다.' }}
                             </p>
                             <div class="flex flex-wrap justify-center md:justify-start gap-3">
                                 <div class="px-4 py-2 bg-white/20 rounded-xl border border-white/20">
@@ -244,12 +242,6 @@ onMounted(() => {
                                         class="text-[10px] text-blue-100 block uppercase font-bold tracking-wider mb-1">보유
                                         강의</span>
                                     <span class="text-lg font-bold">{{ paidCourseList.length }}개</span>
-                                </div>
-                                <div class="px-4 py-2 bg-white/20 rounded-xl border border-white/20">
-                                    <span
-                                        class="text-[10px] text-blue-100 block uppercase font-bold tracking-wider mb-1">활동
-                                        점수</span>
-                                    <span class="text-lg font-bold">1,250P</span>
                                 </div>
                             </div>
                         </div>
@@ -511,30 +503,6 @@ onMounted(() => {
                             </template>
                         </div>
 
-                        <!-- 멘토링 위젯 -->
-                        <div class="white-card rounded-2xl p-6 relative overflow-hidden">
-                            <div class="absolute -right-4 -top-4 w-20 h-20 bg-blue-50 rounded-full blur-2xl"></div>
-                            <h3 class="text-base font-bold text-slate-800 mb-4">나의 멘토링</h3>
-                            <div
-                                class="flex items-center gap-4 p-3 bg-slate-50 rounded-xl border border-slate-100 mb-4">
-                                <div
-                                    class="w-10 h-10 rounded-full overflow-hidden bg-white border border-slate-200">
-                                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Mentor" alt="Mentor">
-                                </div>
-                                <div>
-                                    <p class="text-xs font-bold text-slate-800">안재현 멘토</p>
-                                    <p class="text-[10px] text-slate-400">리액트 실무 전문가</p>
-                                </div>
-                                <button
-                                    class="ml-auto w-8 h-8 flex items-center justify-center bg-brand rounded-lg text-white hover:opacity-90 transition-opacity shadow-md shadow-blue-100">
-                                    <i class="fa-regular fa-envelope text-xs"></i>
-                                </button>
-                            </div>
-                            <p class="text-[11px] text-slate-500 leading-relaxed">
-                                <i class="fa-solid fa-quote-left text-[10px] mr-1 opacity-20"></i>
-                                학습 중 막히는 부분이 있다면 언제든지 메시지 남겨주세요!
-                            </p>
-                        </div>
                     </div>
                 </div>
             </div>

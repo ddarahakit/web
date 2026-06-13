@@ -208,15 +208,6 @@ onMounted(() => {
 
     <!-- 중앙 게시글 목록 -->
     <section class="flex-grow">
-      <!-- 탭 메뉴 -->
-      <div class="flex items-center gap-8 border-b border-gray-200 mb-8 px-2">
-        <button class="pb-4 text-sm font-bold tab-active">최신순</button>
-        <button class="pb-4 text-sm font-medium text-gray-400 hover:text-gray-600">인기순</button>
-        <button class="pb-4 text-sm font-medium text-gray-400 hover:text-gray-600">
-          답변 대기중
-        </button>
-      </div>
-
       <!-- 게시글 리스트 -->
       <div class="space-y-4">
         <!-- 스켈레톤 UI -->
@@ -265,14 +256,11 @@ onMounted(() => {
                 <div class="flex items-center gap-4 text-xs text-gray-400">
                   <span class="flex items-center gap-1.5"><i class="fa-solid fa-user"></i> {{ post.userName }}</span>
                   <span class="flex items-center gap-1.5"><i class="fa-solid fa-clock"></i> {{ post.createdAt }}</span>
-                  <span class="flex items-center gap-1.5"><i class="fa-solid fa-eye"></i> 128</span>
                 </div>
                 <div class="flex items-center gap-3">
                   <span class="flex items-center gap-1 text-xs font-bold"
                     :class="post.commentCount > 0 ? 'text-brand' : 'text-gray-400'"><i
                       class="fa-regular fa-comment-dots"></i> {{ post.commentCount }}</span>
-                  <span class="flex items-center gap-1 text-xs font-bold text-gray-400"><i
-                      class="fa-regular fa-thumbs-up"></i> 100</span>
                 </div>
               </div>
 

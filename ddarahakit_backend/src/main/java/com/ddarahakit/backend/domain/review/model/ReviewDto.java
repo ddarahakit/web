@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Slice;
 
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,6 +46,7 @@ public class ReviewDto {
         private int rating;
         private String userName;
         private String userProfileImageUrl;
+        private String createdAt;   // 작성일 (yyyy.MM.dd)
 
         public static ReviewDto.ReviewRes of(Review entity) {
             return ReviewDto.ReviewRes.builder()
@@ -53,6 +55,9 @@ public class ReviewDto {
                     .rating(entity.getRating())
                     .userName(entity.getUser().getName())
                     .userProfileImageUrl(entity.getUser().getProfileImageUrl())
+                    .createdAt(entity.getCreatedAt() != null
+                            ? new SimpleDateFormat("yyyy.MM.dd").format(entity.getCreatedAt())
+                            : null)
                     .build();
         }
     }
