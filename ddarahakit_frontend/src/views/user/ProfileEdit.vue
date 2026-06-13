@@ -257,34 +257,13 @@ onMounted(() => {
                                     placeholder="자신을 한 줄로 멋지게 표현해 보세요">
                             </div>
 
-                            <!-- 전문 분야 -->
-                            <div class="md:col-span-2 space-y-4">
-                                <label class="text-[13px] font-bold text-slate-700 flex items-center gap-2 ml-1">
-                                    <i class="fa-solid fa-tags text-brand text-[10px]"></i> 나의 관심 키워드
-                                </label>
-                                <div class="flex flex-wrap gap-2.5">
-                                    <span class="px-4 py-2 bg-blue-50 text-brand text-xs font-bold rounded-xl border border-blue-100 flex items-center gap-2">
-                                        # 프론트엔드 <button type="button" class="hover:text-red-400"><i class="fa-solid fa-xmark"></i></button>
-                                    </span>
-                                    <span class="px-4 py-2 bg-blue-50 text-brand text-xs font-bold rounded-xl border border-blue-100 flex items-center gap-2">
-                                        # Vue3 <button type="button" class="hover:text-red-400"><i class="fa-solid fa-xmark"></i></button>
-                                    </span>
-                                    <span class="px-4 py-2 bg-blue-50 text-brand text-xs font-bold rounded-xl border border-blue-100 flex items-center gap-2">
-                                        # SpringBoot <button type="button" class="hover:text-red-400"><i class="fa-solid fa-xmark"></i></button>
-                                    </span>
-                                    <button type="button" class="px-4 py-2 border border-dashed border-slate-300 text-slate-400 text-xs font-bold rounded-xl hover:border-brand hover:text-brand hover:bg-blue-50/30 transition-all">
-                                        + 관심분야 추가
-                                    </button>
-                                </div>
-                            </div>
-
                             <!-- 소셜 링크 -->
                             <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
                                 <div class="space-y-2.5">
                                     <label class="text-[13px] font-bold text-slate-700 flex items-center gap-2 ml-1">
                                         <i class="fa-brands fa-github text-slate-900"></i> GitHub
                                     </label>
-                                    <input type="text" value="https://github.com/minjun_dev" class="w-full px-5 py-3.5 rounded-2xl border border-slate-200 profile-input text-sm font-medium" placeholder="https://github.com/...">
+                                    <input type="text" class="w-full px-5 py-3.5 rounded-2xl border border-slate-200 profile-input text-sm font-medium" placeholder="https://github.com/...">
                                 </div>
                                 <div class="space-y-2.5">
                                     <label class="text-[13px] font-bold text-slate-700 flex items-center gap-2 ml-1">
