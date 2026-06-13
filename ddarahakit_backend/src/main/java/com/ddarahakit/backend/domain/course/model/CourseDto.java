@@ -223,7 +223,8 @@ public class CourseDto {
                     .name(entity.getName())
                     .free(entity.isFree())
                     .playTime(entity.getPlayTime())
-                    .videoUrl(entity.getVideoUrl())
+                    // 미리보기(코스 상세) 응답에서는 무료 강의만 영상 URL 노출. 유료 강의는 구매 후 수강 페이지(readLecture)에서만 시청.
+                    .videoUrl(entity.isFree() ? entity.getVideoUrl() : null)
                     .content(entity.getContent())
                     .isComplete(lectureCompletes.contains(entity.getIdx()))
                     .build();
@@ -234,7 +235,8 @@ public class CourseDto {
                     .idx(entity.getIdx())
                     .name(entity.getName())
                     .playTime(entity.getPlayTime())
-                    .videoUrl(entity.getVideoUrl())
+                    // 미리보기(코스 상세) 응답에서는 무료 강의만 영상 URL 노출. 유료 강의는 구매 후 수강 페이지(readLecture)에서만 시청.
+                    .videoUrl(entity.isFree() ? entity.getVideoUrl() : null)
                     .content(entity.getContent())
                     .isComplete(false)
                     .build();
