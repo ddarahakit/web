@@ -9,6 +9,7 @@ import com.ddarahakit.backend.domain.community.model.CommunityDto.PostCreateRequ
 import com.ddarahakit.backend.domain.community.model.CommunityDto.PostDetailResponse;
 import com.ddarahakit.backend.domain.community.model.CommunityDto.PostPageResponse;
 import com.ddarahakit.backend.domain.community.model.CommunityDto.PostRankingResponse;
+import com.ddarahakit.backend.domain.community.model.CommunityDto.PostSummaryResponse;
 import com.ddarahakit.backend.domain.community.model.CommunityDto.PostUpdateRequest;
 import com.ddarahakit.backend.domain.community.model.PostType;
 import com.ddarahakit.backend.domain.image.FileUploadService;
@@ -41,7 +42,7 @@ public class CommunityController {
     @GetMapping("/list")
     public ResponseEntity<BaseResponse<PostPageResponse>> getPostList(
             @AuthenticationPrincipal AuthUserDetails authUserDetails,
-            @Parameter(description = "게시글 타입 (QUESTION, FREE, CAREER, NOTICE)")
+            @Parameter(description = "게시글 타입 (QUESTION, FREE, NOTICE)")
             @RequestParam(required = false) PostType postType,
             @Parameter(description = "검색 키워드 (제목, 내용)")
             @RequestParam(required = false) String keyword,
@@ -124,6 +125,16 @@ public class CommunityController {
         return ResponseEntity.ok(BaseResponse.success(response));
     }
 
+    @Operation(summary = "베스트 답변 채택", description = "질문 작성자가 답변을 베스트 답변으로 채택/해제합니다. (토글)")
+    @PostMapping("/comment/{commentIdx}/accept")
+    public ResponseEntity<BaseResponse<Map<String, Object>>> acceptComment(
+            @AuthenticationPrincipal AuthUserDetails authUserDetails,
+            @Parameter(description = "댓글 ID") @PathVariable Long commentIdx
+    ) {
+        boolean accepted = communityService.acceptComment(authUserDetails, commentIdx);
+        return ResponseEntity.ok(BaseResponse.success(Map.of("accepted", accepted)));
+    }
+
     @Operation(summary = "이미지 업로드", description = "커뮤니티 게시글용 이미지를 업로드합니다.")
     @PostMapping("/upload")
     public ResponseEntity<BaseResponse<Map<String, String>>> uploadImage(
@@ -181,13 +192,24 @@ public class CommunityController {
         return ResponseEntity.ok(BaseResponse.success(response));
     }
 
-    @Operation(summary = "명예의 전당(랭킹) 조회", description = "인기도(스크랩 수 + 댓글 수)가 높은 게시글 상위 N개를 조회합니다. 모놀리식은 조회수를 지원하지 않아 viewCount는 0으로 응답합니다.")
+    @Operation(summary = "명예의 전당(랭킹) 조회", description = "인기도(조회수 + 댓글 수 + 스크랩 수)가 높은 게시글 상위 N개를 조회합니다.")
     @GetMapping("/ranking")
     public ResponseEntity<BaseResponse<List<PostRankingResponse>>> getRanking(
             @Parameter(description = "조회할 게시글 수 (기본값 10)")
             @RequestParam(defaultValue = "10") int limit
     ) {
         List<PostRankingResponse> response = communityService.getRanking(limit);
+        return ResponseEntity.ok(BaseResponse.success(response));
+    }
+
+    @Operation(summary = "관련 게시글 조회", description = "태그가 겹치는 게시글을 우선 보여주고, 부족하면 같은 코스(없으면 같은 타입)의 최신 글로 보충합니다.")
+    @GetMapping("/{postIdx}/related")
+    public ResponseEntity<BaseResponse<List<PostSummaryResponse>>> getRelatedPosts(
+            @Parameter(description = "게시글 ID") @PathVariable Long postIdx,
+            @Parameter(description = "조회할 게시글 수 (기본값 5)")
+            @RequestParam(defaultValue = "5") int limit
+    ) {
+        List<PostSummaryResponse> response = communityService.getRelatedPosts(postIdx, limit);
         return ResponseEntity.ok(BaseResponse.success(response));
     }
 

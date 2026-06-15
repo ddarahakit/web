@@ -3,6 +3,7 @@ package com.ddarahakit.backend.domain.community.model;
 import com.ddarahakit.backend.domain.course.model.Course;
 import com.ddarahakit.backend.domain.course.model.Lecture;
 import com.ddarahakit.backend.domain.user.model.entity.User;
+import com.ddarahakit.backend.utils.TagUtils;
 import com.ddarahakit.backend.utils.TimeAgoUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -12,6 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -52,6 +54,10 @@ public class CommunityDto {
         @Schema(description = "관련 강의 ID (질문 타입일 때 선택사항)", example = "1")
         private Long lectureIdx;
 
+        @Schema(description = "태그 목록 (최대 5개)", example = "[\"스프링\", \"JPA\"]")
+        @Size(max = 5, message = "태그는 최대 5개까지 등록할 수 있습니다.")
+        private List<@Size(max = 30, message = "태그는 30자 이하로 입력해주세요.") String> tags;
+
         public Post toEntity(User user, Course course, Lecture lecture) {
             return Post.builder()
                     .postType(this.postType)
@@ -61,6 +67,7 @@ public class CommunityDto {
                     .user(user)
                     .course(course)
                     .lecture(lecture)
+                    .tags(TagUtils.normalize(this.tags))
                     .build();
         }
     }
@@ -91,6 +98,10 @@ public class CommunityDto {
 
         @Schema(description = "관련 강의 ID (질문 타입일 때 선택사항)", example = "1")
         private Long lectureIdx;
+
+        @Schema(description = "태그 목록 (최대 5개)", example = "[\"스프링\", \"JPA\"]")
+        @Size(max = 5, message = "태그는 최대 5개까지 등록할 수 있습니다.")
+        private List<@Size(max = 30, message = "태그는 30자 이하로 입력해주세요.") String> tags;
     }
 
     @Getter
@@ -206,6 +217,9 @@ public class CommunityDto {
         @Schema(description = "관련 코스명 (질문 타입일 때)")
         private final String courseName;
 
+        @Schema(description = "조회 수")
+        private final int viewCount;
+
         @Schema(description = "댓글 수")
         private final int commentCount;
 
@@ -235,6 +249,7 @@ public class CommunityDto {
                     .userName(user != null ? user.getName() : "알 수 없음")
                     .userIdx(user != null ? user.getIdx() : null)
                     .courseName(course != null ? course.getName() : null)
+                    .viewCount(post.getViewCount())
                     .commentCount(Optional.ofNullable(post.getComments()).map(List::size).orElse(0))
                     .scrapCount(scrapCount)
                     .scrapped(scrapped)
@@ -286,6 +301,12 @@ public class CommunityDto {
         @Schema(description = "관련 강의명")
         private final String lectureName;
 
+        @Schema(description = "태그 목록")
+        private final List<String> tags;
+
+        @Schema(description = "조회 수")
+        private final int viewCount;
+
         @Schema(description = "댓글 목록")
         private final List<CommentResponse> comments;
 
@@ -330,6 +351,8 @@ public class CommunityDto {
                     .courseName(course != null ? course.getName() : null)
                     .lectureIdx(lecture != null ? lecture.getIdx() : null)
                     .lectureName(lecture != null ? lecture.getName() : null)
+                    .tags(new ArrayList<>(Optional.ofNullable(post.getTags()).orElse(Collections.emptySet())))
+                    .viewCount(post.getViewCount())
                     .comments(comments)
                     .scrapCount(scrapCount)
                     .scrapped(scrapped)
@@ -358,7 +381,7 @@ public class CommunityDto {
         @Schema(description = "작성자 이름")
         private final String userName;
 
-        @Schema(description = "조회 수 (모놀리식은 조회수 미지원으로 항상 0)")
+        @Schema(description = "조회 수")
         private final long viewCount;
 
         @Schema(description = "댓글 수")
@@ -379,7 +402,7 @@ public class CommunityDto {
                     .postTypeDescription(post.getPostType().getDescription())
                     .title(post.getTitle())
                     .userName(user != null ? user.getName() : "알 수 없음")
-                    .viewCount(0L)
+                    .viewCount(post.getViewCount())
                     .commentCount(commentCount)
                     .scrapCount(scrapCount)
                     .createdAt(TimeAgoUtil.timeAgo(post.getCreatedAt()))
@@ -409,6 +432,9 @@ public class CommunityDto {
         @Schema(description = "작성자 프로필 이미지")
         private final String userProfileImageUrl;
 
+        @Schema(description = "채택된 베스트 답변 여부")
+        private final boolean accepted;
+
         @Schema(description = "작성 시간")
         private final String createdAt;
 
@@ -416,6 +442,7 @@ public class CommunityDto {
             User user = comment.getUser();
 
             return CommentResponse.builder()
+                    .accepted(comment.isAccepted())
                     .idx(comment.getIdx())
                     .text(comment.getText())
                     .content(comment.getContent())

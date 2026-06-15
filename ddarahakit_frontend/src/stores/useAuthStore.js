@@ -16,6 +16,9 @@ const useAuthStore = defineStore('auth', () => {
     //로그인 여부
     const isLogin = ref(false)
 
+    //프로필 이미지 (헤더 등에서 반응형으로 참조 → 변경 시 즉시 반영)
+    const profileImage = ref('')
+
     /**
      * 토큰 정보 저장
      *
@@ -102,11 +105,27 @@ const useAuthStore = defineStore('auth', () => {
     /**
      * 로그아웃
      *
-     * 스토리지 로그인 정보 삭제 및 로그인 상태를 변경한다.
+     * 브라우저 스토리지의 인증 정보를 정리하고 로그인 상태를 변경한다.
+     * (HttpOnly 쿠키는 JS로 지울 수 없어 백엔드 /user/logout 응답의 Set-Cookie 로 삭제된다)
      */
     const logout = () => {
-        //스토리지 로그인 정보 삭제
+        //인증 세션 정보 삭제
         encryptStorage.removeItem('store')
+
+        //혹시 남아있을 수 있는 인증/세션 스토리지 정리
+        try {
+            //로그인 플로우(OAuth 등)에서 쓰던 세션 스토리지 비우기
+            sessionStorage.clear()
+            //@IT 프리픽스로 저장된 잔여 인증 키 제거 (store 외 토큰성 데이터 방어)
+            for (let i = localStorage.length - 1; i >= 0; i--) {
+                const key = localStorage.key(i)
+                if (key && (key.startsWith('@IT') && key.includes('store'))) {
+                    localStorage.removeItem(key)
+                }
+            }
+        } catch (e) {
+            //스토리지 접근 불가(프라이빗 모드 등) 시 무시
+        }
 
         //초기 설정
         initSettings()
@@ -227,6 +246,9 @@ const useAuthStore = defineStore('auth', () => {
 
         store.userProfileImage = url
         encryptStorage.setItem('store', JSON.stringify(store))
+
+        //반응형 값 갱신 → 헤더 등에 즉시 반영
+        profileImage.value = url || ''
     }
 
     /**
@@ -247,11 +269,20 @@ const useAuthStore = defineStore('auth', () => {
     const initSettings = () => {
         //로그인 여부
         isLogin.value = checkLogin()
+
+        //프로필 이미지 반응형 값을 스토리지와 동기화
+        if (isLogin.value) {
+            const store = encryptStorage.getItem('store')
+            profileImage.value = (store && store.userProfileImage) ? store.userProfileImage : ''
+        } else {
+            profileImage.value = ''
+        }
     }
 
 
     return {
         isLogin,
+        profileImage,
         getWithExpiry,
         checkLogin,
         login,

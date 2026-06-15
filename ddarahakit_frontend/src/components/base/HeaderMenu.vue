@@ -59,7 +59,10 @@ const logout = () => {
                     <RouterLink :to="{ name: 'courseList' }" @click="closeHeaderMenu">실제 수업</RouterLink>
                 </li>
                 <li class="menu_mm">
-                    <RouterLink :to="{ name: 'projectManagement' }" @click="closeHeaderMenu">수업 진행 방식</RouterLink>
+                    <RouterLink :to="{ name: 'projectManagement' }" @click="closeHeaderMenu">포트폴리오</RouterLink>
+                </li>
+                <li class="menu_mm">
+                    <RouterLink :to="{ name: 'communityList' }" @click="closeHeaderMenu">커뮤니티</RouterLink>
                 </li>
                 <template v-if="!isLogin">
                     <li class="menu_mm">
@@ -211,7 +214,9 @@ const logout = () => {
     position: fixed;
     top: 3rem;
     right: -400px;
-    width: 400px;
+    width: min(400px, 85vw);
+    /* 모바일에서 화면을 넘지 않도록(390px 등) 폭 제한 */
+    max-width: 100vw;
     height: 100vh;
     background: #FFFFFF;
     z-index: 1100;

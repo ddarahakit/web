@@ -14,6 +14,8 @@ const getUserProfile = async () => {
     const data = await api.userProfile()
     if (data.success && data.results) {
         userProfile.value = data.results
+        // 헤더가 옛/기본 이미지를 들고 있어도 최신 프로필 이미지로 동기화
+        authStore.setUserProfileImage(data.results.profileImageUrl)
     }
 }
 

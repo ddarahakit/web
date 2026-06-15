@@ -87,6 +87,8 @@ const getUserProfile = async () => {
       userProfile.value = data.results
       originalProfile.value = { ...data.results } // 여기서 백업
 
+      //헤더가 옛/깨진 값을 들고 있어도 최신 프로필 이미지로 동기화
+      authStore.setUserProfileImage(data.results.profileImageUrl)
     }
   }
 }
@@ -168,9 +170,10 @@ const updateProfileImage = async (event) => {
   const data = await api.updateProfileImage(formData)
   if (data.success) {
     if (data.results) {
-      console.log(data.results.profileImageUrl)
       userProfile.value.profileImageUrl = data.results.profileImageUrl
       originalProfile.value.profileImageUrl = data.results.profileImageUrl
+      // 헤더 등에서 참조하는 스토리지/반응형 값도 갱신 → 헤더 프로필 즉시 반영
+      authStore.setUserProfileImage(data.results.profileImageUrl)
     }
   }
 }

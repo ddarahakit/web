@@ -10,9 +10,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,6 +39,12 @@ public class Post extends BaseEntity {
     @Column(columnDefinition = "LONGTEXT")
     private String content;
 
+    // 조회수
+    @Builder.Default
+    @ColumnDefault("0")
+    @Column(nullable = false)
+    private int viewCount = 0;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_idx")
     private User user;
@@ -54,12 +63,25 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post")
     private List<Comment> comments = new ArrayList<>();
 
-    public void update(PostType postType, String title, String text, String content, Course course, Lecture lecture) {
+    // 게시글 태그 (검색·관련 게시글 매칭용)
+    @Builder.Default
+    @BatchSize(size = 100)
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "post_tag", joinColumns = @JoinColumn(name = "post_idx"))
+    @Column(name = "tag", length = 30)
+    private Set<String> tags = new LinkedHashSet<>();
+
+    public void update(PostType postType, String title, String text, String content, Course course, Lecture lecture, Set<String> tags) {
         this.postType = postType;
         this.title = title;
         this.text = text;
         this.content = content;
         this.course = course;
         this.lecture = lecture;
+        // @ElementCollection은 참조 교체보다 in-place 변경이 안전
+        this.tags.clear();
+        if (tags != null) {
+            this.tags.addAll(tags);
+        }
     }
 }

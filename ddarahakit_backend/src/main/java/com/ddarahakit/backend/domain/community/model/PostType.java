@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 public enum PostType {
     QUESTION("질문"),
     FREE("자유주제"),
-    CAREER("커리어/이직"),
     NOTICE("공지사항");
 
     private final String description;

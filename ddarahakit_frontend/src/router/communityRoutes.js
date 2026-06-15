@@ -41,6 +41,13 @@ const courseRoutes = {
             meta: {
                 requiresAuth: true
             }
+        }, {
+            name: 'communityEdit',
+            path: 'edit/:postIdx(\\d+)',
+            component: () => import('@/views/community/CommunityReg.vue'),
+            meta: {
+                requiresAuth: true
+            }
         }
     ]
 }

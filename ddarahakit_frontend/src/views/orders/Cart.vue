@@ -4,8 +4,12 @@ import { useRouter } from 'vue-router'
 import cartApi from '@/api/cart'
 import ordersApi from '@/api/orders'
 import { formatPrice } from '@/utils/price'
+import useCartStore from '@/stores/useCartStore'
 
 const router = useRouter()
+
+//장바구니 저장소 (헤더 배지와 공유)
+const cartStore = useCartStore()
 
 // 로딩 상태
 const isLoading = ref(true)
@@ -116,6 +120,8 @@ const getCartList = async () => {
         totalSalePrice.value = data.results.totalSalePrice || 0
         // 초기 로드 시 전체 선택
         selectedItems.value = cartItems.value.map(item => item.cartItemIdx)
+        // 헤더 배지와 동기화 (목록을 이미 알고 있으므로 길이로 즉시 갱신)
+        cartStore.setCount(cartItems.value.length)
     }
 }
 
@@ -156,6 +162,8 @@ const onPaymentSuccess = async (selected, message) => {
     // 장바구니 정리 (실패해도 이동은 진행)
     try {
         await Promise.all(selected.map(item => cartApi.cartRemove(item.cartItemIdx)))
+        // 헤더 배지 동기화 (남은 장바구니 수 재조회)
+        await cartStore.fetchCount()
     } catch (e) {
         console.warn("장바구니 정리 중 오류:", e)
     }
