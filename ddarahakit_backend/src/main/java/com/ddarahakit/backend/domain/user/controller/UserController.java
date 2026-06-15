@@ -214,10 +214,14 @@ public class UserController {
         String accessCookie = String.format(accessFormat, tokenPair.accessToken(), accessMaxAge);
         String refreshCookie = String.format(refreshFormat, tokenPair.refreshToken(), refreshMaxAge);
 
+        // JWT 기반 principal(소셜 로그인 등)은 프로필 이미지를 담지 않으므로
+        // DB에서 최신 사용자 정보를 다시 읽어 응답(프로필 이미지 포함)을 구성한다.
+        AuthUserDetails freshUser = (AuthUserDetails) userService.loadUserByUsername(authUserDetails.getEmail());
+
         return ResponseEntity.ok()
                 .header("Set-Cookie", accessCookie)
                 .header("Set-Cookie", refreshCookie)
-                .body(BaseResponse.success(UserDto.LoginRes.of(authUserDetails.toEntity())));
+                .body(BaseResponse.success(UserDto.LoginRes.of(freshUser.toEntity())));
     }
 
     @Operation(

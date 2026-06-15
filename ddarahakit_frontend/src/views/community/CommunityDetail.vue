@@ -39,6 +39,7 @@ const getRelatedPosts = async () => {
 
 const post = ref({
   idx: 0,
+  postType: '',
   title: '',
   text: '',
   content: '',
@@ -47,6 +48,8 @@ const post = ref({
   userProfileImageUrl: '',
   courseName: '',
   lectureName: '',
+  tags: [],
+  viewCount: 0,
   comments: [],
   createdAt: '',
   updatedAt: ''
@@ -147,6 +150,164 @@ const toggleScrap = async () => {
     }
   }
   isScrapLoading.value = false
+}
+
+/* ------------------------------------------------------------------
+ * 게시글 수정/삭제
+ * ------------------------------------------------------------------ */
+
+// 게시글 더보기 메뉴 표시 여부
+const showPostMenu = ref(false)
+
+// 현재 로그인 사용자 idx (느슨한 비교용)
+const myIdx = computed(() => Number(authStore.getUserIdx()))
+const isAdmin = computed(() => authStore.getUserRole() === 'ROLE_ADMIN')
+
+// 게시글 수정 가능: 작성자 본인, 또는 공지(NOTICE)의 관리자
+const canEditPost = computed(() =>
+  authStore.isLogin &&
+  (myIdx.value === Number(post.value.userIdx) ||
+    (isAdmin.value && post.value.postType === 'NOTICE'))
+)
+
+// 게시글 삭제 가능: 작성자 본인 또는 관리자
+const canDeletePost = computed(() =>
+  authStore.isLogin &&
+  (myIdx.value === Number(post.value.userIdx) || isAdmin.value)
+)
+
+/**
+ * 게시글 수정 페이지로 이동
+ */
+const goEditPost = () => {
+  showPostMenu.value = false
+  router.push({ name: 'communityEdit', params: { postIdx } })
+}
+
+/**
+ * 게시글 삭제
+ */
+const onDeletePost = async () => {
+  showPostMenu.value = false
+  if (!confirm('이 게시글을 삭제하시겠습니까? 삭제 후에는 복구할 수 없습니다.')) return
+
+  const data = await api.postDelete(postIdx)
+  if (data.success) {
+    router.push({ name: 'communityList' })
+  } else {
+    alert('삭제에 실패했습니다. 잠시 후 다시 시도해주세요.')
+  }
+}
+
+/* ------------------------------------------------------------------
+ * 댓글(답변) 수정/삭제
+ * ------------------------------------------------------------------ */
+
+// 현재 수정 중인 댓글 idx (없으면 null)
+const editingCommentIdx = ref(null)
+// 수정 에디터 v-model
+const editCommentContent = reactive({ text: '', content: '' })
+// 수정 에디터 초기 본문
+const editCommentInitial = ref(null)
+
+// 댓글 수정 가능: 작성자 본인
+const canEditComment = (comment) =>
+  authStore.isLogin && myIdx.value === Number(comment.userIdx)
+
+// 댓글 삭제 가능: 작성자 본인 또는 관리자
+const canDeleteComment = (comment) =>
+  authStore.isLogin && (myIdx.value === Number(comment.userIdx) || isAdmin.value)
+
+/**
+ * 댓글 수정 시작
+ */
+const startEditComment = (comment) => {
+  editingCommentIdx.value = comment.idx
+  editCommentContent.text = comment.text || ''
+  editCommentContent.content = comment.content || ''
+  editCommentInitial.value = comment.content || ''
+}
+
+/**
+ * 댓글 수정 취소
+ */
+const cancelEditComment = () => {
+  editingCommentIdx.value = null
+}
+
+/**
+ * 댓글 수정 에디터 변경 핸들러
+ */
+const onEditCommentChange = (value) => {
+  editCommentContent.text = value.text
+  editCommentContent.content = value.content
+}
+
+/**
+ * 댓글 수정 저장
+ */
+const submitEditComment = async (comment) => {
+  if (!editCommentContent.text || editCommentContent.text === '\n') {
+    alert('답변 내용을 입력해주세요.')
+    return
+  }
+  const data = await api.commentUpdate(comment.idx, editCommentContent)
+  if (data.success) {
+    window.location.reload()
+  } else {
+    alert('수정에 실패했습니다. 잠시 후 다시 시도해주세요.')
+  }
+}
+
+/**
+ * 댓글 삭제
+ */
+const onDeleteComment = async (comment) => {
+  if (!confirm('이 답변을 삭제하시겠습니까?')) return
+
+  const data = await api.commentDelete(comment.idx)
+  if (data.success) {
+    window.location.reload()
+  } else {
+    alert('삭제에 실패했습니다. 잠시 후 다시 시도해주세요.')
+  }
+}
+
+/* ------------------------------------------------------------------
+ * 베스트 답변 채택
+ * ------------------------------------------------------------------ */
+
+// 질문(게시글) 작성자 여부 — 채택 권한
+const isPostOwner = computed(() => authStore.isLogin && myIdx.value === Number(post.value.userIdx))
+// 질문 타입 글에서만 채택 사용
+const isQuestion = computed(() => post.value.postType === 'QUESTION')
+
+// 채택 버튼 노출 조건: 질문 작성자 + 질문글 + 본인 답변이 아님
+const canAcceptComment = (comment) =>
+  isPostOwner.value && isQuestion.value && Number(comment.userIdx) !== Number(post.value.userIdx)
+
+// 채택된 답변을 상단에 고정해 정렬
+const sortedComments = computed(() => {
+  const list = [...(post.value.comments || [])]
+  return list.sort((a, b) => (b.accepted === true ? 1 : 0) - (a.accepted === true ? 1 : 0))
+})
+
+/**
+ * 베스트 답변 채택/해제 (토글)
+ */
+const onAcceptComment = async (comment) => {
+  const data = await api.commentAccept(comment.idx)
+  if (data.success) {
+    const accepted = data.results?.accepted === true
+    // 로컬 반영: 한 글당 채택은 하나 → 전부 해제 후 토글 결과만 반영
+    post.value.comments.forEach(c => { c.accepted = false })
+    if (accepted) {
+      const target = post.value.comments.find(c => c.idx === comment.idx)
+      if (target) target.accepted = true
+    }
+  } else {
+    alert('채택 처리에 실패했습니다. 잠시 후 다시 시도해주세요.')
+  }
 }
 
 /**
@@ -330,6 +491,8 @@ const submitForm = async () => {
                   <p class="text-[11px] text-gray-400">
                     <i class="fa-solid fa-clock mr-1"></i>{{ post.createdAt }}
                     <span class="mx-1">·</span>
+                    <i class="fa-regular fa-eye mr-1"></i>조회 {{ post.viewCount }}
+                    <span class="mx-1">·</span>
                     <i class="fa-regular fa-comment mr-1"></i>답변 {{ post.commentCount }}
                   </p>
                 </div>
@@ -343,9 +506,23 @@ const submitForm = async () => {
                   <i :class="[isScrapped ? 'fa-solid' : 'fa-regular', 'fa-bookmark', 'mr-1']"></i>
                   {{ isScrapped ? '스크랩됨' : '스크랩' }}
                 </button>
-                <button class="p-2 text-gray-400 hover:text-gray-600">
-                  <i class="fa-solid fa-ellipsis-vertical"></i>
-                </button>
+                <div v-if="canEditPost || canDeletePost" class="relative">
+                  <button type="button" @click="showPostMenu = !showPostMenu" @blur="showPostMenu = false"
+                          class="p-2 text-gray-400 hover:text-gray-600">
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                  </button>
+                  <div v-if="showPostMenu"
+                       class="absolute right-0 top-full mt-1 w-32 bg-white border border-gray-100 rounded-xl shadow-lg py-1 z-20">
+                    <button v-if="canEditPost" type="button" @mousedown.prevent="goEditPost"
+                            class="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-50">
+                      <i class="fa-solid fa-pen mr-2 text-xs"></i>수정
+                    </button>
+                    <button v-if="canDeletePost" type="button" @mousedown.prevent="onDeletePost"
+                            class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50">
+                      <i class="fa-solid fa-trash mr-2 text-xs"></i>삭제
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </header>
@@ -358,6 +535,15 @@ const submitForm = async () => {
               :initial-content="post.content"
             />
           </div>
+
+          <!-- 태그 -->
+          <div v-if="post.tags && post.tags.length"
+               class="flex flex-wrap gap-2 mt-8 pt-6 border-t border-gray-50">
+            <span v-for="tag in post.tags" :key="tag"
+                  class="px-3 py-1.5 bg-blue-50 text-brand text-xs font-bold rounded-lg border border-blue-100">
+              #{{ tag }}
+            </span>
+          </div>
         </div>
       </article>
 
@@ -369,8 +555,8 @@ const submitForm = async () => {
           </h3>
         </div>
 
-        <!-- 답변 작성 폼 -->
-        <div v-if="authStore.isLogin && (authStore.getUserIdx() == post.userIdx || authStore.getUserRole() == 'ROLE_ADMIN')"
+        <!-- 답변 작성 폼 (로그인한 사용자 누구나 답변 가능) -->
+        <div v-if="authStore.isLogin"
              class="bg-white rounded-2xl border border-gray-100 shadow-sm mb-8 overflow-hidden">
           <form @submit.prevent="submitForm">
             <div class="comment-editor-wrapper">
@@ -410,16 +596,16 @@ const submitForm = async () => {
 
         <!-- 답변 리스트 -->
         <div class="space-y-4">
-          <div v-for="(comment, index) in post.comments" :key="comment.idx"
+          <div v-for="comment in sortedComments" :key="comment.idx"
                class="bg-white p-6 rounded-2xl shadow-sm"
-               :class="index === 0 ? 'border-2 border-blue-100 relative' : 'border border-gray-100'">
-            <!-- 베스트 답변 뱃지 (첫 번째 답변) -->
-            <div v-if="index === 0 && post.commentCount > 1"
-                 class="absolute -top-3 left-6 px-3 py-1 bg-brand text-white text-[10px] font-bold rounded-full shadow-md">
-              BEST 답변
+               :class="comment.accepted ? 'border-2 border-brand/50 relative' : 'border border-gray-100'">
+            <!-- 채택된 베스트 답변 뱃지 -->
+            <div v-if="comment.accepted"
+                 class="absolute -top-3 left-6 px-3 py-1 bg-brand text-white text-[10px] font-bold rounded-full shadow-md flex items-center gap-1">
+              <i class="fa-solid fa-circle-check"></i> 채택된 답변
             </div>
 
-            <div class="flex justify-between items-start mb-4">
+            <div class="flex flex-wrap justify-between items-start gap-y-2 mb-4">
               <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-500 text-xs overflow-hidden">
                   <img v-if="comment.userProfileImageUrl" :src="userImageUrl(comment.userProfileImageUrl)" alt="" class="w-full h-full object-cover">
@@ -433,9 +619,49 @@ const submitForm = async () => {
                   <p class="text-[11px] text-gray-400">{{ comment.createdAt }}</p>
                 </div>
               </div>
+              <!-- 우측 컨트롤: 채택 + 수정/삭제 -->
+              <div v-if="editingCommentIdx !== comment.idx" class="flex items-center gap-2 flex-shrink-0">
+                <!-- 채택 버튼 (질문 작성자) -->
+                <button v-if="canAcceptComment(comment)" type="button" @click="onAcceptComment(comment)"
+                        class="px-3 py-1 text-xs font-bold rounded-lg border transition-colors"
+                        :class="comment.accepted
+                          ? 'bg-brand text-white border-brand hover:opacity-90'
+                          : 'text-brand border-blue-200 hover:bg-blue-50'">
+                  <i class="fa-solid fa-circle-check mr-1"></i>{{ comment.accepted ? '채택됨' : '채택' }}
+                </button>
+                <!-- 수정/삭제 -->
+                <template v-if="canEditComment(comment) || canDeleteComment(comment)">
+                  <button v-if="canEditComment(comment)" type="button" @click="startEditComment(comment)"
+                          class="px-2 py-1 text-xs text-gray-400 hover:text-brand transition-colors">수정</button>
+                  <button v-if="canDeleteComment(comment)" type="button" @click="onDeleteComment(comment)"
+                          class="px-2 py-1 text-xs text-gray-400 hover:text-red-500 transition-colors">삭제</button>
+                </template>
+              </div>
             </div>
 
-            <div class="text-gray-600 text-[15px] leading-relaxed mb-4">
+            <!-- 수정 모드 -->
+            <div v-if="editingCommentIdx === comment.idx" class="mb-2">
+              <div class="comment-editor-wrapper border border-gray-100 rounded-xl overflow-hidden">
+                <QuillEditor
+                  v-model="editCommentContent"
+                  :enable-image-upload="true"
+                  :image-base-url="backend"
+                  :initial-content="editCommentInitial"
+                  placeholder="답변 내용을 입력해주세요."
+                  min-height="6rem"
+                  @text-change="onEditCommentChange"
+                />
+              </div>
+              <div class="flex justify-end gap-2 mt-2">
+                <button type="button" @click="cancelEditComment"
+                        class="px-4 py-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 transition-all">취소</button>
+                <button type="button" @click="submitEditComment(comment)"
+                        class="px-5 py-2 text-sm bg-brand text-white rounded-lg font-bold hover:opacity-90 transition-all">저장</button>
+              </div>
+            </div>
+
+            <!-- 읽기 모드 -->
+            <div v-else class="text-gray-600 text-[15px] leading-relaxed mb-4">
               <QuillEditor
                 :read-only="true"
                 :initial-content="comment.content"

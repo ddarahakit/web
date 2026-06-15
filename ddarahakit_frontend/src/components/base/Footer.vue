@@ -12,7 +12,7 @@
           사업자 등록번호: 123-45-67890 | 통신판매업 신고번호: 2026-서울강남-0000
         </p>
       </div>
-      <div class="flex gap-12">
+      <div class="flex gap-8 md:gap-12">
         <div>
           <h4 class="font-bold mb-4 text-gray-900">서비스</h4>
           <ul class="text-gray-500 text-sm space-y-2">

@@ -19,6 +19,7 @@ import com.ddarahakit.backend.domain.course.model.Course;
 import com.ddarahakit.backend.domain.course.model.Lecture;
 import com.ddarahakit.backend.domain.course.repository.CourseRepository;
 import com.ddarahakit.backend.domain.course.repository.LectureRepository;
+import com.ddarahakit.backend.utils.TagUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,8 +61,12 @@ public class CommunityService {
 
     /**
      * 게시글 상세 조회
+     * - 조회 시 조회수 +1 (원자적 증가 후 최신 값으로 응답)
      */
+    @Transactional
     public PostDetailResponse getPostDetail(AuthUserDetails authUserDetails, Long postIdx) {
+        postRepository.incrementViewCount(postIdx);
+
         Post post = postRepository.findByIdWithUserAndComments(postIdx)
                 .orElseThrow(() -> BaseException.of(POST_NOT_FOUND));
 
@@ -110,7 +116,8 @@ public class CommunityService {
         Course course = findCourseIfPresent(request.getCourseIdx());
         Lecture lecture = findLectureIfPresent(request.getLectureIdx());
 
-        post.update(request.getPostType(), request.getTitle(), request.getText(), request.getContent(), course, lecture);
+        post.update(request.getPostType(), request.getTitle(), request.getText(), request.getContent(), course, lecture,
+                TagUtils.normalize(request.getTags()));
 
         long scrapCount = postScrapRepository.countByPost(post);
         boolean scrapped = postScrapRepository.existsByUserAndPost(authUserDetails.toEntity(), post);
@@ -187,6 +194,37 @@ public class CommunityService {
     }
 
     /**
+     * 베스트 답변 채택 (토글)
+     * - 질문(게시글) 작성자만 채택 가능
+     * - 게시글당 채택 답변은 하나 (다른 채택은 자동 해제)
+     * - 이미 채택된 답변을 다시 채택하면 채택 해제
+     *
+     * @return 토글 후 채택 여부(true=채택, false=해제)
+     */
+    @Transactional
+    public boolean acceptComment(AuthUserDetails authUserDetails, Long commentIdx) {
+        Comment comment = commentRepository.findById(commentIdx)
+                .orElseThrow(() -> BaseException.of(COMMENT_NOT_FOUND));
+
+        Post post = comment.getPost();
+        if (post == null || post.getUser() == null
+                || !post.getUser().getIdx().equals(authUserDetails.getIdx())) {
+            // 질문 작성자만 채택할 수 있다
+            throw BaseException.of(COMMENT_UNAUTHORIZED);
+        }
+
+        boolean newState = !comment.isAccepted();
+
+        // 한 게시글당 채택 답변은 하나만 → 형제 댓글을 모두 정리하고 토글 결과만 반영
+        List<Comment> siblings = commentRepository.findByPost(post);
+        for (Comment c : siblings) {
+            c.setAccepted(c.getIdx().equals(commentIdx) && newState);
+        }
+
+        return newState;
+    }
+
+    /**
      * 게시글 스크랩
      */
     @Transactional
@@ -255,6 +293,57 @@ public class CommunityService {
                         (Long) row[1],
                         (Long) row[2]
                 ))
+                .toList();
+    }
+
+    /**
+     * 관련 게시글 조회
+     * - 1순위: 태그가 겹치는 다른 게시글(공유 태그 수 → 최신순)
+     * - 부족하면 같은 코스(없으면 같은 타입)의 최신 글로 보충
+     * - 현재 글은 제외, 최대 limit 개
+     */
+    public List<PostSummaryResponse> getRelatedPosts(Long postIdx, int limit) {
+        Post post = postRepository.findById(postIdx)
+                .orElseThrow(() -> BaseException.of(POST_NOT_FOUND));
+
+        Pageable pageable = PageRequest.of(0, limit);
+
+        // 순서 유지 + 중복 제거
+        LinkedHashMap<Long, Post> collected = new LinkedHashMap<>();
+
+        // 1) 태그 기반
+        Set<String> tags = post.getTags();
+        if (tags != null && !tags.isEmpty()) {
+            List<Long> ids = postRepository.findRelatedPostIdsByTags(tags, postIdx, pageable);
+            if (!ids.isEmpty()) {
+                Map<Long, Post> byId = postRepository.findAllByIdInWithUser(ids).stream()
+                        .collect(Collectors.toMap(Post::getIdx, p -> p));
+                // 공유 태그 수 정렬 순서(ids) 유지
+                ids.forEach(id -> {
+                    Post p = byId.get(id);
+                    if (p != null) {
+                        collected.put(id, p);
+                    }
+                });
+            }
+        }
+
+        // 2) 부족하면 같은 코스 → 같은 타입으로 보충
+        if (collected.size() < limit) {
+            List<Post> fallback = post.getCourse() != null
+                    ? postRepository.findRelatedByCourse(post.getCourse().getIdx(), postIdx, pageable)
+                    : postRepository.findRelatedByPostType(post.getPostType(), postIdx, pageable);
+            for (Post p : fallback) {
+                if (collected.size() >= limit) {
+                    break;
+                }
+                collected.putIfAbsent(p.getIdx(), p);
+            }
+        }
+
+        return collected.values().stream()
+                .limit(limit)
+                .map(PostSummaryResponse::from)
                 .toList();
     }
 

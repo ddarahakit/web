@@ -104,6 +104,7 @@ public class SecurityConfig {
                         .requestMatchers(POST, "/cart").authenticated()
                         .requestMatchers(DELETE, "/cart", "/cart/*").authenticated()
                         .requestMatchers(POST, "/community/post", "/community/comment", "/community/upload").authenticated()
+                        .requestMatchers(POST, "/community/comment/*/accept").authenticated()
                         .requestMatchers(PUT, "/community/post/*", "/community/comment/*").authenticated()
                         .requestMatchers(DELETE, "/community/post/*", "/community/comment/*").authenticated()
                         .requestMatchers(GET, "/community/scrap").authenticated()

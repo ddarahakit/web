@@ -18,7 +18,6 @@ const boardCategories = [
   { key: null, name: '전체글', icon: 'fa-solid fa-house' },
   { key: 'QUESTION', name: '질문/답변', icon: 'fa-solid fa-circle-question' },
   { key: 'FREE', name: '자유주제', icon: 'fa-solid fa-comments' },
-  { key: 'CAREER', name: '커리어/이직', icon: 'fa-solid fa-briefcase' },
   { key: 'NOTICE', name: '공지사항', icon: 'fa-solid fa-bullhorn' },
 ]
 
@@ -57,9 +56,6 @@ const goToWrite = () => {
 
 // 로딩 상태
 const isLoading = ref(true)
-
-//폼 정보 객체
-const searchForm = ref()
 
 //검색 정보 객체
 const searchInput = reactive({
@@ -123,25 +119,34 @@ const goToPage = (page) => {
 }
 
 /**
- * 폼 서브밋
+ * 검색 실행
  *
+ * 검색어로 게시글 목록을 조회한다(제목/내용). 백엔드 GET /community/list?keyword= 연동.
+ * 첫 페이지로 초기화하고 URL 쿼리도 갱신해 새로고침/공유 시에도 유지되게 한다.
  */
-const submitForm = async () => {
-  // 현재 검색어를 쿼리 파라미터로 포함해서 URL 갱신
-  const params = new URLSearchParams();
+const onSearch = () => {
+  const keyword = (searchInput.keyword || '').trim()
+  pageInfo.keyword = keyword
+  pageInfo.page = 1
 
-  if (searchInput.keyword) {
-    params.append("keyword", searchInput.keyword);
+  // URL 쿼리 갱신 (postType 등 기존 조건은 유지)
+  const query = { ...route.query, page: '1' }
+  if (keyword) {
+    query.keyword = keyword
+  } else {
+    delete query.keyword
   }
+  router.replace({ query })
 
-  params.append("page", "1"); // 검색 시 첫 페이지로 초기화
-  if (route.query.size) params.append("size", route.query.size);
-  if (route.query.course) params.append("course", route.query.course);
+  getPostList()
+}
 
-  window.location.href = `/qna/list?${params.toString()}`;
-
-  // 변경된 쿼리 기반으로 데이터 다시 가져오기
-  await getPostList()
+/**
+ * 검색 초기화
+ */
+const clearSearch = () => {
+  searchInput.keyword = ''
+  onSearch()
 }
 
 
@@ -208,6 +213,26 @@ onMounted(() => {
 
     <!-- 중앙 게시글 목록 -->
     <section class="flex-grow">
+      <!-- 검색 영역 -->
+      <div class="mb-6">
+        <form @submit.prevent="onSearch" class="relative">
+          <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+          <input v-model="searchInput.keyword" type="search" placeholder="제목·내용으로 검색해보세요"
+            class="w-full pl-12 pr-24 py-4 bg-white border border-gray-100 rounded-2xl shadow-sm text-sm text-gray-700 placeholder-gray-400 focus:border-brand focus:outline-none transition-all" />
+          <button type="submit"
+            class="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2.5 bg-brand text-white rounded-xl text-sm font-bold hover:opacity-90 transition-all">
+            검색
+          </button>
+        </form>
+        <!-- 검색 결과 안내 -->
+        <div v-if="pageInfo.keyword" class="mt-3 flex items-center gap-3 px-1 text-sm text-gray-500">
+          <span><b class="text-gray-800">'{{ pageInfo.keyword }}'</b> 검색 결과 {{ postPage.totalPosts }}건</span>
+          <button @click="clearSearch" class="flex items-center gap-1 text-gray-400 hover:text-brand transition-colors">
+            <i class="fa-solid fa-xmark"></i> 검색 초기화
+          </button>
+        </div>
+      </div>
+
       <!-- 게시글 리스트 -->
       <div class="space-y-4">
         <!-- 스켈레톤 UI -->
@@ -235,6 +260,42 @@ onMounted(() => {
           </div>
         </template>
 
+        <!-- 빈 상태: 검색 결과 없음 -->
+        <div v-else-if="postPage.posts.length === 0 && pageInfo.keyword"
+          class="bg-white p-12 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center text-center">
+          <div class="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-5">
+            <i class="fa-solid fa-magnifying-glass text-brand text-2xl"></i>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">
+            '{{ pageInfo.keyword }}' 검색 결과가 없어요
+          </h3>
+          <p class="text-sm text-gray-400 mb-6">
+            다른 키워드로 검색하거나 새 글을 남겨보세요.
+          </p>
+          <button @click="clearSearch"
+            class="px-6 py-3 bg-brand text-white rounded-2xl font-bold shadow-lg shadow-blue-100 flex items-center gap-2 hover:opacity-90 transition-all">
+            <i class="fa-solid fa-rotate-left"></i> 검색 초기화
+          </button>
+        </div>
+
+        <!-- 빈 상태: 글 없음 -->
+        <div v-else-if="postPage.posts.length === 0"
+          class="bg-white p-12 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center text-center">
+          <div class="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-5">
+            <i class="fa-regular fa-comment-dots text-brand text-2xl"></i>
+          </div>
+          <h3 class="text-lg font-bold text-gray-900 mb-2">
+            {{ activeCategoryName }}에 아직 글이 없어요
+          </h3>
+          <p class="text-sm text-gray-400 mb-6">
+            첫 번째 글을 남겨 커뮤니티를 시작해 보세요.
+          </p>
+          <button @click="goToWrite"
+            class="px-6 py-3 bg-brand text-white rounded-2xl font-bold shadow-lg shadow-blue-100 flex items-center gap-2 hover:opacity-90 transition-all">
+            <i class="fa-solid fa-pen-to-square"></i> 글쓰기
+          </button>
+        </div>
+
         <!-- 실제 게시글 -->
         <template v-else>
           <div v-for="(post, index) in postPage.posts" :key="index"
@@ -258,6 +319,7 @@ onMounted(() => {
                   <span class="flex items-center gap-1.5"><i class="fa-solid fa-clock"></i> {{ post.createdAt }}</span>
                 </div>
                 <div class="flex items-center gap-3">
+                  <span class="flex items-center gap-1 text-xs text-gray-400"><i class="fa-regular fa-eye"></i> {{ post.viewCount }}</span>
                   <span class="flex items-center gap-1 text-xs font-bold"
                     :class="post.commentCount > 0 ? 'text-brand' : 'text-gray-400'"><i
                       class="fa-regular fa-comment-dots"></i> {{ post.commentCount }}</span>

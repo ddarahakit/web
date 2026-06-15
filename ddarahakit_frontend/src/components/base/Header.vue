@@ -1,8 +1,8 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
 import useAuthStore from '@/stores/useAuthStore'
+import useCartStore from '@/stores/useCartStore'
 import { useRoute, useRouter } from 'vue-router'
-import cartApi from '@/api/cart'
 import HeaderMenu from './HeaderMenu.vue'
 import UserAvatar from '@/components/base/UserAvatar.vue'
 
@@ -19,6 +19,9 @@ const isCourseActive = computed(() => route.path.startsWith('/course'))
 // '수업 진행 방식' 활성화: /projects 하위 모든 경로에서 활성
 const isProjectActive = computed(() => route.path.startsWith('/projects'))
 
+// '커뮤니티' 활성화: /community 하위 모든 경로에서 활성
+const isCommunityActive = computed(() => route.path.startsWith('/community'))
+
 //강의 검색
 const searchKeyword = ref('')
 const goSearch = () => {
@@ -30,6 +33,9 @@ const goSearch = () => {
 //저장소 정보 객체
 const authStore = useAuthStore()
 
+//장바구니 저장소 (헤더 배지 ↔ 장바구니 화면 공유)
+const cartStore = useCartStore()
+
 //props 설정
 const props = defineProps({
   isScrolled: { type: Boolean, required: true },
@@ -40,20 +46,6 @@ const isHeaderSideMenuVisible = ref(false)
 
 // 프로필 메뉴 표시 여부
 const isMenuOpen = ref(false)
-
-// 장바구니 항목 수
-const cartCount = ref(0)
-
-/**
- * 장바구니 항목 수 조회
- */
-const getCartCount = async () => {
-  const data = await cartApi.cartCount()
-  if (data.success && data.results) {
-    cartCount.value = data.results.count
-  }
-}
-
 
 const emit = defineEmits(['update:isHeaderSideMenuVisible'])
 
@@ -83,9 +75,9 @@ const closeHeaderMenu = () => {
 // 로그인 상태 변경 감지 → 장바구니 카운트 조회
 watch(() => authStore.isLogin, (loggedIn) => {
   if (loggedIn) {
-    getCartCount()
+    cartStore.fetchCount()
   } else {
-    cartCount.value = 0
+    cartStore.reset()
   }
 })
 
@@ -94,7 +86,7 @@ onMounted(() => {
   authStore.initSettings()
   //장바구니 항목 수 조회
   if (authStore.isLogin) {
-    getCartCount()
+    cartStore.fetchCount()
   }
 })
 </script>
@@ -110,7 +102,9 @@ onMounted(() => {
           <RouterLink :to="{ name: 'courseList' }" class="hover:text-brand transition-colors py-5 border-b-2 border-transparent"
             :class="{ '!text-brand !border-brand': isCourseActive }">실제 수업</RouterLink>
           <RouterLink :to="{ name: 'projectManagement' }" class="hover:text-brand transition-colors py-5 border-b-2 border-transparent"
-            :class="{ '!text-brand !border-brand': isProjectActive }">수업 진행 방식</RouterLink>
+            :class="{ '!text-brand !border-brand': isProjectActive }">포트폴리오</RouterLink>
+          <RouterLink :to="{ name: 'communityList' }" class="hover:text-brand transition-colors py-5 border-b-2 border-transparent"
+            :class="{ '!text-brand !border-brand': isCommunityActive }">커뮤니티</RouterLink>
         </div>
       </div>
       <!-- 강의 검색 -->
@@ -119,12 +113,14 @@ onMounted(() => {
         <input v-model="searchKeyword" type="search" placeholder="강의 검색"
           class="bg-transparent outline-none text-sm ml-2 w-full text-gray-700 placeholder-gray-400" />
       </form>
+      <!-- 우측: 로그인/프로필 영역 + 모바일 햄버거 -->
+      <div class="flex items-center gap-3">
       <div v-if="authStore.isLogin" class="flex items-center gap-5">
         <RouterLink :to="{ name: 'ordersCart' }" class="relative text-slate-400 hover:text-slate-600">
           <i class="fa-solid fa-cart-shopping"></i>
-          <span v-if="cartCount > 0"
+          <span v-if="cartStore.count > 0"
             class="absolute -top-2 -right-2 bg-brand text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-            {{ cartCount }}
+            {{ cartStore.count }}
           </span>
         </RouterLink>
         <div class="w-px h-4 bg-slate-200"></div>
@@ -139,7 +135,7 @@ onMounted(() => {
             </div>
 
             <div class="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 p-0.5">
-              <UserAvatar :src="authStore.getUserProfileImage()" rounded="rounded-full" icon-class="text-sm" />
+              <UserAvatar :src="authStore.profileImage" rounded="rounded-full" icon-class="text-sm" />
             </div>
           </div>
 
@@ -168,9 +164,16 @@ onMounted(() => {
           class="px-5 py-2.5 bg-brand text-white rounded-full text-sm font-bold shadow-lg shadow-blue-100">시작하기
         </RouterLink>
       </div>
+
+        <!-- 모바일 햄버거 메뉴 버튼 (PC는 숨김, 데스크톱 nav 사용) -->
+        <button type="button" @click="showHeaderMenu" aria-label="메뉴 열기"
+          class="md:hidden w-9 h-9 flex items-center justify-center text-slate-600 hover:text-brand">
+          <i class="fa-solid fa-bars text-lg"></i>
+        </button>
+      </div>
     </div>
   </nav>
-  <HeaderMenu :isHeaderSideMenuVisible="isHeaderSideMenuVisible" @closeHeaderMenu="closeHeaderMenu"
+  <HeaderMenu :isHeaderMenuVisible="isHeaderSideMenuVisible" @closeHeaderMenu="closeHeaderMenu"
     :isLogin="authStore.isLogin" />
 </template>
 <style scoped>

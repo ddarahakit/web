@@ -301,15 +301,15 @@ watch(
     </div>
 
     <main class="max-w-7xl mx-auto px-6 pt-6 pb-12 flex flex-col md:flex-row gap-8">
-        <!-- 왼쪽 사이드바 (카테고리) -->
+        <!-- 왼쪽 사이드바 (카테고리) : 모바일에서는 상단에 가로 배치 -->
         <aside class="w-full md:w-64 flex-shrink-0">
-            <div class="sticky top-28 space-y-8">
+            <div class="md:sticky md:top-28 space-y-6 md:space-y-8">
                 <div>
                     <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
                         <i class="fa-solid fa-list-ul text-brand"></i> 카테고리
                     </h3>
-                    <ul class="space-y-1">
-                        <li>
+                    <ul class="category-scroll flex flex-nowrap overflow-x-auto gap-2 md:block md:overflow-visible md:space-y-1">
+                        <li class="shrink-0 whitespace-nowrap">
                             <RouterLink to="/course/list"
                                 class="category-item flex items-center justify-between px-4 py-2.5 rounded-xl font-medium"
                                 :class="!activeSlug ? 'active' : 'text-gray-600'">
@@ -318,7 +318,7 @@ watch(
                             </RouterLink>
                         </li>
                         <template v-for="cat in categories" :key="cat.idx">
-                            <li>
+                            <li class="shrink-0 whitespace-nowrap">
                                 <RouterLink :to="`/course/list/${cat.slug}`"
                                     class="category-item flex items-center justify-between px-4 py-2.5 rounded-xl font-medium"
                                     :class="activeSlug === cat.slug ? 'active' : 'text-gray-600'">
@@ -326,9 +326,9 @@ watch(
                                     <span class="text-xs bg-gray-100 px-2 py-0.5 rounded-full text-gray-500">{{ categoryTotal(cat) }}</span>
                                 </RouterLink>
                             </li>
-                            <li v-for="child in cat.children" :key="child.idx">
+                            <li v-for="child in cat.children" :key="child.idx" class="shrink-0 whitespace-nowrap">
                                 <RouterLink :to="`/course/list/${child.slug}`"
-                                    class="category-item flex items-center justify-between pl-8 pr-4 py-2 rounded-xl font-medium text-sm"
+                                    class="category-item flex items-center justify-between pl-4 md:pl-8 pr-4 py-2 rounded-xl font-medium text-sm"
                                     :class="activeSlug === child.slug ? 'active' : 'text-gray-400'">
                                     {{ child.name }}
                                     <span class="text-xs bg-gray-100 px-2 py-0.5 rounded-full text-gray-500">{{ child.courseCount || 0 }}</span>
@@ -340,7 +340,7 @@ watch(
 
                 <div class="pt-6 border-t border-gray-100">
                     <h3 class="font-bold text-lg mb-4">필터</h3>
-                    <div class="space-y-4">
+                    <div class="flex flex-wrap gap-x-6 gap-y-3 md:block md:space-y-4">
                         <label class="flex items-center gap-3 cursor-pointer group">
                             <input type="checkbox" v-model="filters.free"
                                 class="w-4 h-4 rounded border-gray-300 text-brand focus:ring-brand" />
@@ -359,7 +359,7 @@ watch(
                     </div>
 
                     <h3 class="font-bold text-lg mb-4 mt-8">난이도</h3>
-                    <div class="space-y-4">
+                    <div class="flex flex-wrap gap-x-6 gap-y-3 md:block md:space-y-4">
                         <label class="flex items-center gap-3 cursor-pointer group">
                             <input type="checkbox" value="쉬움" v-model="selectedLevels"
                                 class="w-4 h-4 rounded border-gray-300 text-brand focus:ring-brand" />
@@ -394,7 +394,7 @@ watch(
             </div>
 
             <!-- 그리드 시작 -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- 스켈레톤 UI -->
                 <template v-if="isLoading">
                     <div v-for="n in 6" :key="n" class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
@@ -482,6 +482,20 @@ watch(
 .category-item.active {
     color: #14BCED;
     background-color: rgba(20, 188, 237, 0.05);
+}
+
+/* 모바일 카테고리: 한 줄 가로 스크롤 + 터치 드래그(관성 스크롤). 스크롤바는 숨김. */
+.category-scroll {
+    -webkit-overflow-scrolling: touch;
+    /* iOS 관성 스크롤 */
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    /* Firefox 스크롤바 숨김 */
+}
+
+.category-scroll::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari 스크롤바 숨김 */
 }
 
 .course-card {

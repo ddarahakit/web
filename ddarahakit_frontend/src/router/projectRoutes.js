@@ -10,7 +10,7 @@ const projectRoutes = {
             path: '',
             component: () => import('@/views/project/ProjectManagement.vue'),
             meta: {
-                title: '수업 진행 방식 | 따라학잇',
+                title: '포트폴리오 | 따라학잇',
                 requiresAuth: false
             }
         }

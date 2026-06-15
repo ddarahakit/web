@@ -255,7 +255,7 @@ onUnmounted(() => {
                 <div class="relative" @mouseenter="isProfileMenuOpen = true" @mouseleave="isProfileMenuOpen = false">
                     <button
                         class="w-8 h-8 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-slate-100 border border-slate-200">
-                        <UserAvatar :src="authStore.getUserProfileImage()" icon-class="text-sm" />
+                        <UserAvatar :src="authStore.profileImage" icon-class="text-sm" />
                     </button>
 
                     <!-- 프로필 호버 드롭다운 -->
@@ -385,7 +385,7 @@ onUnmounted(() => {
                             </h2>
 
                             <div class="flex items-center justify-between py-5 border-y border-slate-50">
-                                <div class="flex items-center gap-3">
+                                <div class="flex flex-wrap items-center gap-3">
                                     <button @click="goPreviousLecture"
                                         class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 text-sm font-bold transition-colors">
                                         <i class="fa-solid fa-arrow-left"></i>

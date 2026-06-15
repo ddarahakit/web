@@ -37,7 +37,7 @@ public class AuthUserDetails implements UserDetails, OAuth2User {
                 .email(email)
                 .name(name)
                 .password(password)
-                .profileImageUrl(DEFAULT_USER_PROFILE_IMAGE_NAME)
+                .profileImageUrl(profileImageUrl)
                 .role(role)
                 .enabled(enabled != null ? enabled : false)
                 .provider(provider)

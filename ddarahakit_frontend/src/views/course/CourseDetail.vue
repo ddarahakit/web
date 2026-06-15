@@ -7,7 +7,7 @@ import cartApi from '@/api/cart'
 import reviewApi from '@/api/review'
 import communityApi from '@/api/community'
 import commonUtil from '@/utils/commonUtil'
-import { userImageUrl } from '@/utils/image'
+import UserAvatar from '@/components/base/UserAvatar.vue'
 import { formatPrice } from '@/utils/price'
 import useCategoryStore from '@/stores/useCategoryStore'
 import QuillEditor from '@/components/base/QuillEditor.vue'
@@ -469,7 +469,7 @@ const addCart = async () => {
         </div>
     </section>
     <!-- 스켈레톤 UI - 메인 콘텐츠 -->
-    <main v-if="isLoading" class="pt-6 max-w-7xl mx-auto px-6 py-12 flex flex-col md:flex-row gap-8">
+    <main v-if="isLoading" class="pt-6 max-w-7xl mx-auto px-6 py-12 flex flex-col lg:flex-row gap-8">
         <div class="flex-grow lg:max-w-[calc(100%-400px)]">
             <!-- 탭 스켈레톤 -->
             <div class="flex items-center gap-8 border-b border-gray-100 mb-10">
@@ -534,24 +534,24 @@ const addCart = async () => {
         </aside>
     </main>
 
-    <main v-else class="pt-6 max-w-7xl mx-auto px-6 py-12 flex flex-col md:flex-row gap-8">
+    <main v-else class="pt-6 max-w-7xl mx-auto px-6 py-12 flex flex-col lg:flex-row gap-8">
         <!-- 왼쪽 상세 설명 -->
         <div class="flex-grow lg:max-w-[calc(100%-400px)]">
             <!-- 탭 메뉴 -->
-            <div class="flex items-center gap-8 border-b border-gray-100 mb-10 top-[4.5rem] bg-white z-10">
-                <button @click="scrollToSection('intro')" class="pt-4 pb-4 text-md font-bold tab-btn"
+            <div class="flex items-center gap-4 md:gap-8 border-b border-gray-100 mb-10 top-[4.5rem] bg-white z-10 overflow-x-auto">
+                <button @click="scrollToSection('intro')" class="pt-4 pb-4 text-md font-bold tab-btn shrink-0 whitespace-nowrap"
                     :class="activeTab === 'intro' ? 'active' : 'text-gray-400 hover:text-gray-600'">
                     강의 소개
                 </button>
-                <button @click="scrollToSection('curriculum')" class="pt-4 pb-4 text-md font-bold tab-btn"
+                <button @click="scrollToSection('curriculum')" class="pt-4 pb-4 text-md font-bold tab-btn shrink-0 whitespace-nowrap"
                     :class="activeTab === 'curriculum' ? 'active' : 'text-gray-400 hover:text-gray-600'">
                     커리큘럼
                 </button>
-                <button @click="scrollToSection('reviews')" class="pt-4 pb-4 text-md font-bold tab-btn"
+                <button @click="scrollToSection('reviews')" class="pt-4 pb-4 text-md font-bold tab-btn shrink-0 whitespace-nowrap"
                     :class="activeTab === 'reviews' ? 'active' : 'text-gray-400 hover:text-gray-600'">
                     수강평
                 </button>
-                <button @click="scrollToSection('qna')" class="pt-4 pb-4 text-md font-bold tab-btn"
+                <button @click="scrollToSection('qna')" class="pt-4 pb-4 text-md font-bold tab-btn shrink-0 whitespace-nowrap"
                     :class="activeTab === 'qna' ? 'active' : 'text-gray-400 hover:text-gray-600'">
                     질문답변
                 </button>
@@ -616,10 +616,8 @@ const addCart = async () => {
                         class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm">
                         <div class="flex justify-between items-center mb-4">
                             <div class="flex items-center gap-3">
-                                <div
-                                    class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 overflow-hidden">
-                                    <img :src="userImageUrl(review.userProfileImageUrl)" alt=""
-                                        class="w-full h-full object-cover">
+                                <div class="w-10 h-10 rounded-full overflow-hidden">
+                                    <UserAvatar :src="review.userProfileImageUrl" alt="" icon-class="text-sm" />
                                 </div>
                                 <div>
                                     <p class="text-sm font-bold text-gray-900">{{ review.userName }}</p>
@@ -724,10 +722,10 @@ const addCart = async () => {
             </section>
         </div>
 
-        <!-- 오른쪽 구매 사이드바 -->
-        <aside class="w-full lg:w-[360px] flex-shrink-0">
+        <!-- 오른쪽 구매 사이드바 (모바일에서는 상단으로 이동, sticky 해제) -->
+        <aside class="w-full lg:w-[360px] flex-shrink-0 order-first lg:order-none">
             <div
-                class="sticky sticky-sidebar bg-white border border-gray-100 rounded-3xl shadow-2xl shadow-blue-100/50 overflow-hidden">
+                class="lg:sticky sticky-sidebar bg-white border border-gray-100 rounded-3xl shadow-2xl shadow-blue-100/50 overflow-hidden">
                 <div class="aspect-video bg-blue-50 flex items-center justify-center border-b border-gray-100">
                     <img class="w-full h-full object-cover" :src="`${course.image}`">
                 </div>

@@ -44,7 +44,8 @@ const postCreate = async (req) => {
         text: req.text,
         content: req.content,
         courseIdx: req.courseIdx || null,
-        lectureIdx: req.lectureIdx || null
+        lectureIdx: req.lectureIdx || null,
+        tags: req.tags || []
     }
 
     //결과
@@ -53,6 +54,61 @@ const postCreate = async (req) => {
     //API 호출
     await $axios
         .post('/community/post', postInfo)
+        .then((res) => {
+            //성공
+            data = res.data
+        })
+        .catch((error) => {
+            //실패
+            data = error.data
+        })
+
+    return data
+}
+
+/**
+ * 게시글 수정하기
+ */
+const postUpdate = async (postIdx, req) => {
+
+    const postInfo = {
+        postType: req.postType,
+        title: req.title,
+        text: req.text,
+        content: req.content,
+        courseIdx: req.courseIdx || null,
+        lectureIdx: req.lectureIdx || null,
+        tags: req.tags || []
+    }
+
+    //결과
+    let data = {}
+
+    //API 호출
+    await $axios
+        .put(`/community/post/${postIdx}`, postInfo)
+        .then((res) => {
+            //성공
+            data = res.data
+        })
+        .catch((error) => {
+            //실패
+            data = error.data
+        })
+
+    return data
+}
+
+/**
+ * 게시글 삭제하기
+ */
+const postDelete = async (postIdx) => {
+    //결과
+    let data = {}
+
+    //API 호출
+    await $axios
+        .delete(`/community/post/${postIdx}`)
         .then((res) => {
             //성공
             data = res.data
@@ -82,6 +138,78 @@ const commentCreate = async (req) => {
     //API 호출
     await $axios
         .post('/community/comment', commentInfo)
+        .then((res) => {
+            //성공
+            data = res.data
+        })
+        .catch((error) => {
+            //실패
+            data = error.data
+        })
+
+    return data
+}
+
+/**
+ * 댓글 수정하기
+ */
+const commentUpdate = async (commentIdx, req) => {
+
+    const commentInfo = {
+        text: req.text,
+        content: req.content,
+    }
+
+    //결과
+    let data = {}
+
+    //API 호출
+    await $axios
+        .put(`/community/comment/${commentIdx}`, commentInfo)
+        .then((res) => {
+            //성공
+            data = res.data
+        })
+        .catch((error) => {
+            //실패
+            data = error.data
+        })
+
+    return data
+}
+
+/**
+ * 댓글 삭제하기
+ */
+const commentDelete = async (commentIdx) => {
+    //결과
+    let data = {}
+
+    //API 호출
+    await $axios
+        .delete(`/community/comment/${commentIdx}`)
+        .then((res) => {
+            //성공
+            data = res.data
+        })
+        .catch((error) => {
+            //실패
+            data = error.data
+        })
+
+    return data
+}
+
+/**
+ * 베스트 답변 채택 (토글)
+ */
+const commentAccept = async (commentIdx) => {
+    //결과
+    let data = {}
+
+    //API 호출
+    await $axios
+        .post(`/community/comment/${commentIdx}/accept`)
         .then((res) => {
             //성공
             data = res.data
@@ -234,9 +362,14 @@ export default {
     uploadImage,
     // 신규 (post/comment)
     postCreate,
+    postUpdate,
+    postDelete,
     postList,
     getPostDetail,
     commentCreate,
+    commentUpdate,
+    commentDelete,
+    commentAccept,
     scrapToggle,
     scrapList,
     getRanking,
