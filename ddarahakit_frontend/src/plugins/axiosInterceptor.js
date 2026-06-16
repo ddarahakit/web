@@ -147,9 +147,19 @@ $axios.interceptors.response.use(
                     processQueue(error)
 
                     // 리프레시 실패 시 로그아웃 처리
+                    // 정리 전에 실제로 로그인 세션이 있었는지 확인한다.
+                    const hadSession = authStore.checkLogin()
+
+                    // 스토리지의 로그인 기록 삭제
                     authStore.logout()
-                    alert("세션이 만료되었습니다. 다시 로그인해주세요.")
-                    window.location.href = '/user/login'
+
+                    // 세션이 있었을 때만 알림 + 로그인 리다이렉트.
+                    // 이미 로그아웃 상태에서 들어온 401 은 조용히 종료해
+                    // "세션이 만료되었습니다" 알림이 반복되는 루프를 막는다.
+                    if (hadSession) {
+                        alert("세션이 만료되었습니다. 다시 로그인해주세요.")
+                        window.location.href = '/user/login'
+                    }
                     return Promise.reject(error)
                 }
             }
