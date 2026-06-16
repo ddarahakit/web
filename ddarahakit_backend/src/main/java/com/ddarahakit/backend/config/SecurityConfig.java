@@ -1,5 +1,6 @@
 package com.ddarahakit.backend.config;
 
+import com.ddarahakit.backend.config.security.JwtAuthenticationEntryPoint;
 import com.ddarahakit.backend.config.security.JwtAuthenticationFilter;
 import com.ddarahakit.backend.config.security.oauth.HttpCookieOAuth2AuthorizedClientRepository;
 import com.ddarahakit.backend.config.security.oauth.OAuth2AuthenticationFailureHandler;
@@ -39,6 +40,7 @@ public class SecurityConfig {
     @Value("${app.domain.allowed-origins:${app.domain.server}}")
     private String allowedOrigins;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final OAuth2UserService oAuth2UserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
@@ -125,6 +127,11 @@ public class SecurityConfig {
                         .requestMatchers(DELETE, "/roadmap/*").authenticated()
                         .anyRequest().permitAll()
         );
+
+        // 인증 실패(미인증/유효하지 않은 토큰으로 보호 엔드포인트 접근) 시 401(code 20001) 반환.
+        // 공개 엔드포인트는 여기까지 오지 않으므로 영향 없다.
+        http.exceptionHandling(handler ->
+                handler.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
