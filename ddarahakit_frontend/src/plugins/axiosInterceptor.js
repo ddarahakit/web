@@ -150,6 +150,16 @@ $axios.interceptors.response.use(
                     // 정리 전에 실제로 로그인 세션이 있었는지 확인한다.
                     const hadSession = authStore.checkLogin()
 
+                    if (hadSession) {
+                        // 백엔드 로그아웃 호출로 만료된 HttpOnly 쿠키(ATOKEN/RTOKEN)까지 깨끗하게 삭제한다.
+                        // (JS 로는 HttpOnly 쿠키를 지울 수 없어 서버의 Set-Cookie 만료에 의존)
+                        try {
+                            await userApi.userLogout()
+                        } catch (e) {
+                            // 로그아웃 호출이 실패해도 로컬 정리/리다이렉트는 계속 진행한다.
+                        }
+                    }
+
                     // 스토리지의 로그인 기록 삭제
                     authStore.logout()
 

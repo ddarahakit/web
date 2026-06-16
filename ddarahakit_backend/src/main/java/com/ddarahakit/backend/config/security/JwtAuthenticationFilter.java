@@ -45,32 +45,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = getTokenFromCookie(request);
 
-        // 토큰이 없으면 인증 없이 진행 (permitAll 엔드포인트 처리)
-        if (token == null) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        // 토큰 유효성 검증 (서명 + 만료 + issuer 통합 검증)
-        if (!jwtProvider.validateToken(token)) {
-            sendUnauthorizedResponse(response, "유효하지 않은 토큰입니다.");
-            return;
-        }
-
-        // 액세스 토큰 타입 검증 (리프레시 토큰으로 API 접근 방지)
-        if (!jwtProvider.isAccessToken(token)) {
-            log.warn("[SECURITY] 잘못된 토큰 타입으로 API 접근 시도");
-            sendUnauthorizedResponse(response, "유효하지 않은 토큰입니다.");
-            return;
-        }
-
-        // 인증 정보 설정
-        try {
-            setAuthentication(token);
-        } catch (Exception e) {
-            log.error("[TOKEN] 인증 정보 설정 실패: {}", e.getMessage());
-            sendUnauthorizedResponse(response, "토큰 처리 중 오류가 발생했습니다.");
-            return;
+        // 유효한 액세스 토큰일 때만 인증 정보를 설정한다.
+        // 토큰이 없거나 만료/위조/타입오류인 경우에도 요청을 막지 않고 익명으로 진행한다.
+        //  - 공개(permitAll) 엔드포인트: 잘못된 토큰이 있어도 정상 응답 (예: /course/list)
+        //  - 보호(authenticated) 엔드포인트: 인증 정보가 없으므로 JwtAuthenticationEntryPoint 가 401(code 20001) 반환
+        // 즉, 접근 거부 판단은 필터가 아니라 Spring Security 인가 규칙 + EntryPoint 에 위임한다.
+        if (token != null && jwtProvider.validateToken(token) && jwtProvider.isAccessToken(token)) {
+            try {
+                setAuthentication(token);
+            } catch (Exception e) {
+                // 인증 정보 설정 실패 시에도 컨텍스트는 비운 채 진행(보호 엔드포인트는 EntryPoint 가 처리)
+                log.error("[TOKEN] 인증 정보 설정 실패: {}", e.getMessage());
+            }
         }
 
         filterChain.doFilter(request, response);
@@ -104,14 +90,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         return null;
-    }
-
-    private void sendUnauthorizedResponse(HttpServletResponse response, String message) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setCharacterEncoding("UTF-8");
-        response.setContentType("application/json; charset=UTF-8");
-        response.getWriter().write(
-                String.format("{\"success\":false,\"code\":20001,\"message\":\"%s\",\"results\":null}", message)
-        );
     }
 }
