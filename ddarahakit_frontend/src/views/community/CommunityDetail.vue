@@ -79,6 +79,9 @@ const commentEditorContent = reactive({
 // 에디터 에러 상태
 const commentEditorError = ref(false)
 
+// 답변 작성 에디터 리마운트용 key (등록 후 내용 비우기)
+const commentEditorKey = ref(0)
+
 //답변 정보 객체
 const commentInput = reactive({
   text: '', //답변 내용(평문)
@@ -253,7 +256,8 @@ const submitEditComment = async (comment) => {
   }
   const data = await api.commentUpdate(comment.idx, editCommentContent)
   if (data.success) {
-    window.location.reload()
+    editingCommentIdx.value = null
+    await getPostDetail()
   } else {
     alert('수정에 실패했습니다. 잠시 후 다시 시도해주세요.')
   }
@@ -267,7 +271,7 @@ const onDeleteComment = async (comment) => {
 
   const data = await api.commentDelete(comment.idx)
   if (data.success) {
-    window.location.reload()
+    await getPostDetail()
   } else {
     alert('삭제에 실패했습니다. 잠시 후 다시 시도해주세요.')
   }
@@ -356,7 +360,16 @@ const submitForm = async () => {
   //API: 답변 등록
   const data = await api.commentCreate(commentInput)
   if (data.success) {
-    window.location.reload();
+    // 입력 폼 초기화 + 에디터 리마운트(내용 비우기) 후 답변 목록 재조회
+    commentInput.text = ''
+    commentInput.content = ''
+    commentEditorContent.text = ''
+    commentEditorContent.content = ''
+    commentInputError.text.isValid = false
+    commentInputError.text.errorMessage = null
+    commentEditorError.value = false
+    commentEditorKey.value++
+    await getPostDetail()
   }
 }
 
@@ -561,6 +574,7 @@ const submitForm = async () => {
           <form @submit.prevent="submitForm">
             <div class="comment-editor-wrapper">
               <QuillEditor
+                :key="commentEditorKey"
                 v-model="commentEditorContent"
                 :enable-image-upload="true"
                 :image-base-url="backend"

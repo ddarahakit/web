@@ -197,13 +197,25 @@ const isFormValid = computed(() =>
 /**
  * 리뷰 작성하기
  */
+// 리뷰 작성/수정/삭제 후 폼 초기화 (전체 새로고침 대신 입력 상태만 리셋)
+const resetReviewForm = () => {
+    reviewInput.comment = ''
+    reviewInput.rating = 0
+    reviewInputError.comment.errorMessage = null
+    reviewInputError.comment.isValid = false
+    reviewInputError.rating.errorMessage = null
+    reviewInputError.rating.isValid = false
+    isEditing.value = false
+}
+
 const reviewCreate = async () => {
 
     //API: 리뷰 작성하기
     const data = await reviewApi.reviewCreate(courseIdx, reviewInput)
     if (data.success) {
         if (data.results) {
-            window.location.reload()
+            resetReviewForm()
+            await getCourseDetail()
         }
     }
 }
@@ -212,7 +224,8 @@ const reviewUpdate = async () => {
     //API: 리뷰 수정하기
     const data = await reviewApi.reviewUpdate(courseIdx, reviewInput)
     if (data.success) {
-        window.location.reload()
+        resetReviewForm()
+        await getCourseDetail()
     }
 }
 
@@ -239,8 +252,9 @@ const deleteReview = async (courseIdx) => {
     const data = await reviewApi.reviewDelete(courseIdx)
 
     if (data.success) {
-        //리뷰 삭제
-        window.location.reload()
+        //리뷰 삭제 후 폼 초기화 + 상세 재조회
+        resetReviewForm()
+        await getCourseDetail()
     }
 }
 
