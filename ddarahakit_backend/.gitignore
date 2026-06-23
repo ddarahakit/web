@@ -72,6 +72,10 @@ db/migration/*
 .env
 .env-prod
 
+# 로컬 개발 실행 스크립트(시크릿 포함)·업로드 디렉터리
+run-dev.ps1
+dev-uploads/
+
 # 로컬 도구/설정 및 별도 저장소
 .bkit/
 .claude/
