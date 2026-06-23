@@ -419,7 +419,7 @@ onUnmounted(() => {
                             </div>
 
                             <!-- 강의 소개 -->
-                            <div v-if="lecture.course.description" class="py-4">
+                            <div v-if="lecture.course.text" class="py-4">
                                 <h4 class="font-bold text-slate-800 mb-2">강의 소개</h4>
                                 <p class="text-sm text-slate-600 leading-relaxed">{{ lecture.course.text }}</p>
                             </div>

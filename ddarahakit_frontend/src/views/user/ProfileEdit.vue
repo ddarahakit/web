@@ -73,6 +73,11 @@ const cancelEdit = () => {
     router.push({ name: 'dashboard' })
 }
 
+// 회원 탈퇴: 백엔드 API 미구현 상태. 잘못된 비밀번호 재설정 호출을 제거하고 안내만 노출한다.
+const withdrawAccount = () => {
+    showAlert('error', '회원 탈퇴 기능은 준비 중입니다.')
+}
+
 // 프로필 이미지 변경
 const updateProfileImage = async (event) => {
     const file = event.target.files[0]
@@ -293,7 +298,7 @@ onMounted(() => {
                         </div>
                     </div>
                     <button
-                        @click="resetPassword"
+                        @click="withdrawAccount"
                         class="px-6 py-2.5 text-xs font-bold text-red-400 border border-red-100 rounded-xl hover:bg-red-50 transition-all">
                         탈퇴하기
                     </button>

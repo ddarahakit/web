@@ -196,16 +196,9 @@ const goEvent = () => {
 }
 
 const checkUuidExpired = async () => {
-  //API: 사용자 프로필 상세 조회
+  //API: 비밀번호 재설정 링크(UUID) 유효성 확인 — 만료 시 안내
   const data = await api.checkUuidExpired(passwordInput)
-  if (data.success) {
-    if (data.results) {
-      //조회 결과
-      userProfile.value = data.results
-      originalProfile.value = { ...data.results } // 여기서 백업
-
-    }
-  } else if (data.code === 20011) {
+  if (!data.success && data.code === 20011) {
     BasePupAlertInfo.toggle = true
     BasePupAlertInfo.header = '비밀번호 변경 실패'
     BasePupAlertInfo.text = data.message
@@ -219,7 +212,7 @@ const checkUuidExpired = async () => {
 onMounted(() => {
   checkUuidExpired()
 
-  document.title = '내 프로필 | 따라학잇'
+  document.title = '비밀번호 재설정 | 따라학잇'
 })
 </script>
 
