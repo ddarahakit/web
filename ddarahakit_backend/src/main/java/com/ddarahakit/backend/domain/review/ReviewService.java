@@ -12,7 +12,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static com.ddarahakit.backend.common.model.BaseResponseStatus.RESPONSE_NULL_ERROR;
+import static com.ddarahakit.backend.common.model.BaseResponseStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +23,7 @@ public class ReviewService {
 
     public ReviewDto.ReviewPageRes readReview(AuthUserDetails authUserDetails, Long courseIdx, Pageable pageable) {
         Course course = courseRepository.findById(courseIdx).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(COURSE_NOT_FOUND)
         );
 
         Slice<Review> reviewPage;
@@ -47,7 +47,7 @@ public class ReviewService {
     @Transactional
     public ReviewDto.ReviewRes createReview(AuthUserDetails authUserDetails, Long courseIdx, ReviewDto.ReviewReq dto) {
         Course course = courseRepository.findById(courseIdx).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(COURSE_NOT_FOUND)
         );
 
         Review review = reviewRepository.save(dto.toEntity(authUserDetails.toEntity(), course));
@@ -66,10 +66,10 @@ public class ReviewService {
     @Transactional
     public ReviewDto.ReviewRes updateReview(AuthUserDetails authUserDetails, Long courseIdx, ReviewDto.ReviewReq dto) {
         Course course = courseRepository.findById(courseIdx).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(COURSE_NOT_FOUND)
         );
         Review review = reviewRepository.findByUserAndCourse(authUserDetails.toEntity(), course).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(REVIEW_NOT_FOUND)
         );
 
         int previousRating = review.getRating();
@@ -95,10 +95,10 @@ public class ReviewService {
     @Transactional
     public ReviewDto.ReviewRes remove(AuthUserDetails authUserDetails, Long courseIdx) {
         Course course = courseRepository.findById(courseIdx).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(COURSE_NOT_FOUND)
         );
         Review review = reviewRepository.findByUserAndCourse(authUserDetails.toEntity(), course).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(REVIEW_NOT_FOUND)
         );
 
         int removedRating = review.getRating();

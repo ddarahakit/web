@@ -99,7 +99,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public UserDto.SignupRes signupVerify(UserDto.SignupVerifyReq dto) {
         EmailVerify emailVerify = emailVerifyRepository.findByUuidAndType(dto.getUuid(), EMAIL_TYPE_SIGNUP).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(EMAIL_VERIFY_NOT_FOUND)
         );
 
         User user = emailVerify.getUser();
@@ -121,7 +121,7 @@ public class UserService implements UserDetailsService {
      */
     public UserDto.UserProfileRes getUserProfile(AuthUserDetails authUserDetails) {
         User user = userRepository.findById(authUserDetails.getIdx()).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(USER_NOT_FOUND)
         );
 
         return UserDto.UserProfileRes.of(user);
@@ -196,7 +196,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public UserDto.UserProfileRes updateUserProfile(AuthUserDetails authUserDetails, UserDto.UserProfileReq dto) {
         User user = userRepository.findById(authUserDetails.getIdx()).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(USER_NOT_FOUND)
         );
 
         user.updateProfile(dto);
@@ -211,7 +211,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public UserDto.UserProfileRes updateUserProfile(AuthUserDetails authUserDetails, MultipartFile multipartFile) {
         User user = userRepository.findById(authUserDetails.getIdx()).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(USER_NOT_FOUND)
         );
 
         String savedFileName = fileUploadService.uploadProfile(multipartFile);
@@ -251,7 +251,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public UserDto.SignupRes resetPassword(UserDto.ResetPasswordReq dto) {
         EmailVerify emailVerify = emailVerifyRepository.findByUuidAndType(dto.getUuid(), EMAIL_TYPE_PASSWORD_RESET).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(EMAIL_VERIFY_NOT_FOUND)
         );
 
         User user = emailVerify.getUser();
@@ -284,7 +284,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public UserDto.SignupRes updatePassword(AuthUserDetails authUserDetails, UserDto.UpdatePasswordReq dto) {
         User user = userRepository.findById(authUserDetails.getIdx()).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(USER_NOT_FOUND)
         );
 
         if (!passwordEncoder.matches(dto.getOriginPassword(), user.getPassword()) ||
@@ -304,7 +304,7 @@ public class UserService implements UserDetailsService {
      */
     public boolean checkUuidExpired(String email, String uuid) {
         EmailVerify emailVerify = emailVerifyRepository.findByUuid(uuid).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(EMAIL_VERIFY_NOT_FOUND)
         );
 
         if (!emailVerify.getUser().getEmail().equals(email)) {

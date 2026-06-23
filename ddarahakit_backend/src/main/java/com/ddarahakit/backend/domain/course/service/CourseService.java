@@ -120,7 +120,7 @@ public class CourseService {
 
     public CourseDto.CourseListRes list(String slug) {
         Category category = categoryRepository.findBySlug(slug).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(CATEGORY_NOT_FOUND)
         );
         List<Long> categoryIdxList = categoryRepository.findSubCategoryIdxList(category.getMaterializedPath());
         List<Course> result = courseRepository.findCoursesBycategoryIdxList(categoryIdxList);
@@ -138,7 +138,7 @@ public class CourseService {
         List<Long> lectureCompleteList = List.of();
 
         Course course = courseRepository.findById(courseIdx).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(COURSE_NOT_FOUND)
         );
 
         if (authUserDetails != null) {
@@ -184,11 +184,11 @@ public class CourseService {
 
     public LectureDto.LectureRes readLecture(AuthUserDetails authUserDetails, Long courseIdx, Long lectureIdx) {
         Course course = courseRepository.findById(courseIdx).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(COURSE_NOT_FOUND)
         );
 
         Lecture lecture = lectureRepository.findById(lectureIdx).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(LECTURE_NOT_FOUND)
         );
 
         // 강의가 해당 코스에 속해있는지 확인

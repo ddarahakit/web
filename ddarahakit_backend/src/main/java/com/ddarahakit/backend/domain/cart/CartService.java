@@ -43,7 +43,7 @@ public class CartService {
     @Transactional
     public CartDto.CartItemRes add(AuthUserDetails authUserDetails, CartDto.CartItemReq dto) {
         Course course = courseRepository.findById(dto.getCourseIdx()).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(COURSE_NOT_FOUND)
         );
 
         Cart cart = getOrCreateCart(authUserDetails);

@@ -170,7 +170,7 @@ class UserServiceTest {
 
         BaseException ex = assertThrows(BaseException.class,
                 () -> userService.signupVerify(req));
-        assertEquals(RESPONSE_NULL_ERROR, ex.getStatus());
+        assertEquals(EMAIL_VERIFY_NOT_FOUND, ex.getStatus());
     }
 
     @Test
@@ -214,7 +214,7 @@ class UserServiceTest {
 
         BaseException ex = assertThrows(BaseException.class,
                 () -> userService.getUserProfile(userDetails));
-        assertEquals(RESPONSE_NULL_ERROR, ex.getStatus());
+        assertEquals(USER_NOT_FOUND, ex.getStatus());
     }
 
     // ============================
@@ -265,7 +265,7 @@ class UserServiceTest {
 
         BaseException ex = assertThrows(BaseException.class,
                 () -> userService.updateUserProfile(userDetails, mock(UserDto.UserProfileReq.class)));
-        assertEquals(RESPONSE_NULL_ERROR, ex.getStatus());
+        assertEquals(USER_NOT_FOUND, ex.getStatus());
     }
 
     // ============================
@@ -358,7 +358,7 @@ class UserServiceTest {
 
         BaseException ex = assertThrows(BaseException.class,
                 () -> userService.resetPassword(req));
-        assertEquals(RESPONSE_NULL_ERROR, ex.getStatus());
+        assertEquals(EMAIL_VERIFY_NOT_FOUND, ex.getStatus());
     }
 
     @Test
@@ -501,7 +501,7 @@ class UserServiceTest {
 
         BaseException ex = assertThrows(BaseException.class,
                 () -> userService.checkUuidExpired("user@test.com", "invalid-uuid"));
-        assertEquals(RESPONSE_NULL_ERROR, ex.getStatus());
+        assertEquals(EMAIL_VERIFY_NOT_FOUND, ex.getStatus());
     }
 
     @Test

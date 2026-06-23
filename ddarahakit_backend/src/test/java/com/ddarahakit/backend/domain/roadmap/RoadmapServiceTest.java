@@ -63,7 +63,7 @@ class RoadmapServiceTest {
 
         BaseException ex = assertThrows(BaseException.class,
                 () -> roadmapService.detail(99L));
-        assertEquals(RESPONSE_NULL_ERROR, ex.getStatus());
+        assertEquals(ROADMAP_NOT_FOUND, ex.getStatus());
     }
 
     @Test

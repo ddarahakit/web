@@ -60,14 +60,14 @@ public class MentoringService {
         }
 
         User mentor = userRepository.findById(dto.getMentorIdx()).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(USER_NOT_FOUND)
         );
         if (!"ROLE_MENTOR".equals(mentor.getRole())) {
             throw BaseException.of(MENTORING_INVALID_MENTOR);
         }
 
         User mentee = userRepository.findById(authUserDetails.getIdx()).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(USER_NOT_FOUND)
         );
 
         MentoringSession session = MentoringSession.builder()
@@ -118,7 +118,7 @@ public class MentoringService {
         }
 
         User sender = userRepository.findById(authUserDetails.getIdx()).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(USER_NOT_FOUND)
         );
 
         MentoringMessage message = MentoringMessage.builder()

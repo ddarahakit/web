@@ -12,8 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.ddarahakit.backend.common.model.BaseResponseStatus.RESPONSE_NULL_ERROR;
-import static com.ddarahakit.backend.common.model.BaseResponseStatus.ROADMAP_NOT_FOUND;
+import static com.ddarahakit.backend.common.model.BaseResponseStatus.*;
 
 @RequiredArgsConstructor
 @Service
@@ -29,7 +28,7 @@ public class RoadmapService {
 
     public RoadmapDto.RoadmapDetailRes detail(Long idx) {
         Roadmap roadmap = roadmapRepository.findByIdWithCourses(idx).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(ROADMAP_NOT_FOUND)
         );
         return RoadmapDto.RoadmapDetailRes.of(roadmap);
     }
@@ -45,7 +44,7 @@ public class RoadmapService {
         if (dto.getCourses() != null) {
             for (RoadmapDto.CourseItem item : dto.getCourses()) {
                 Course course = courseRepository.findById(item.getCourseIdx()).orElseThrow(
-                        () -> BaseException.of(RESPONSE_NULL_ERROR)
+                        () -> BaseException.of(COURSE_NOT_FOUND)
                 );
 
                 RoadmapCourse roadmapCourse = RoadmapCourse.builder()
@@ -74,7 +73,7 @@ public class RoadmapService {
             roadmap.getRoadmapCourses().clear();
             for (RoadmapDto.CourseItem item : dto.getCourses()) {
                 Course course = courseRepository.findById(item.getCourseIdx()).orElseThrow(
-                        () -> BaseException.of(RESPONSE_NULL_ERROR)
+                        () -> BaseException.of(COURSE_NOT_FOUND)
                 );
 
                 RoadmapCourse roadmapCourse = RoadmapCourse.builder()

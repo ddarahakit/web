@@ -47,7 +47,7 @@ public class OrdersService {
 
         List<Course> courses = courseRepository.findAllById(courseIdxList);
         if (courses.size() != courseIdxList.size()) {
-            throw BaseException.of(RESPONSE_NULL_ERROR);
+            throw BaseException.of(COURSE_NOT_FOUND);
         }
 
         for (Course course : courses) {
@@ -218,7 +218,7 @@ public class OrdersService {
 
     public boolean check(AuthUserDetails authUserDetails, Long courseIdx) {
         Course course = courseRepository.findById(courseIdx).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
+                () -> BaseException.of(COURSE_NOT_FOUND)
         );
         boolean exists = ordersItemRepository.existsByOrdersUserAndOrdersPaidTrueAndOrdersRefundedFalseAndCourse(authUserDetails.toEntity(), course);
         if (!exists) {

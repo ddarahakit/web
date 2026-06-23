@@ -64,6 +64,13 @@ public enum BaseResponseStatus {
     MENTORING_SESSION_CLOSED(false, 40023, "종료된 멘토링 세션입니다."),
     ROADMAP_NOT_FOUND(false, 40030, "로드맵을 찾을 수 없습니다."),
 
+    COURSE_NOT_FOUND(false, 40060, "코스를 찾을 수 없습니다."),
+    CATEGORY_NOT_FOUND(false, 40061, "카테고리를 찾을 수 없습니다."),
+    LECTURE_NOT_FOUND(false, 40062, "강의를 찾을 수 없습니다."),
+    USER_NOT_FOUND(false, 40063, "사용자를 찾을 수 없습니다."),
+    REVIEW_NOT_FOUND(false, 40064, "리뷰를 찾을 수 없습니다."),
+    EMAIL_VERIFY_NOT_FOUND(false, 40065, "유효하지 않거나 만료된 인증 링크입니다."),
+
     FILE_EMPTY(false, 40050, "업로드할 파일이 없습니다."),
     FILE_INVALID_TYPE(false, 40051, "허용되지 않는 파일 형식입니다. 이미지 파일(png, jpg, jpeg, gif, webp)만 업로드할 수 있습니다."),
     FILE_INVALID_PATH(false, 40052, "잘못된 파일 경로입니다."),
