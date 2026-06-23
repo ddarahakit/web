@@ -36,7 +36,7 @@ public class Lecture extends BaseEntity {
     @Column(columnDefinition = "LONGTEXT")
     private String content;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "section_idx")
     private Section section;
 }

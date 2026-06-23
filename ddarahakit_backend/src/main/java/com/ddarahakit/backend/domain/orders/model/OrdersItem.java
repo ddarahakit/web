@@ -3,6 +3,7 @@ package com.ddarahakit.backend.domain.orders.model;
 import com.ddarahakit.backend.common.model.BaseEntity;
 import com.ddarahakit.backend.domain.course.model.Course;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -31,11 +32,11 @@ public class OrdersItem extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idx;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "orders_idx")
     private Orders orders;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_idx")
     private Course course;
 }

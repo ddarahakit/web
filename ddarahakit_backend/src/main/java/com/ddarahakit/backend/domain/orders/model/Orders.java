@@ -34,7 +34,7 @@ public class Orders extends BaseEntity {
 
     private int paymentPrice;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_idx")
     private User user;
 

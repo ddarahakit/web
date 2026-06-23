@@ -65,6 +65,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        # 지연 로딩(컬렉션/프록시)을 IN 절로 묶어 N+1 완화 (N건 → N/100 쿼리)
+        default_batch_fetch_size: 100
 
 logging:
   level:

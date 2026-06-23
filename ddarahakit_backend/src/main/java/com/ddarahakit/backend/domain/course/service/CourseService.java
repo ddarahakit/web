@@ -90,7 +90,14 @@ public class CourseService {
         // 정렬
         String sortKey = sort == null ? "latest" : sort.toLowerCase();
         switch (sortKey) {
-            case "popular" -> result.sort((a, b) -> Integer.compare(b.getOrders().size(), a.getOrders().size()));
+            case "popular" -> {
+                // 코스별 주문수를 단일 집계 쿼리로 조회(코스마다 orders 컬렉션 적재 방지).
+                java.util.Map<Long, Long> orderCountMap = ordersItemRepository.countGroupByCourse().stream()
+                        .collect(Collectors.toMap(row -> (Long) row[0], row -> (Long) row[1]));
+                result.sort((a, b) -> Long.compare(
+                        orderCountMap.getOrDefault(b.getIdx(), 0L),
+                        orderCountMap.getOrDefault(a.getIdx(), 0L)));
+            }
             case "rating" -> result.sort((a, b) -> Integer.compare(
                     b.getTotalReviewsCount() == null ? 0 : b.getTotalReviewsCount(),
                     a.getTotalReviewsCount() == null ? 0 : a.getTotalReviewsCount()));
