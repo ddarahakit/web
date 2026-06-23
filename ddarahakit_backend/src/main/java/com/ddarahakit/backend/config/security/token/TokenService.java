@@ -158,16 +158,22 @@ public class TokenService {
     private String getClientIp(HttpServletRequest request) {
         if (request == null) return null;
 
-        String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("X-Real-IP");
+        // 신뢰 프록시(nginx)가 Cloudflare CF-Connecting-IP 로 해석한 실제 클라이언트 IP 를 X-Real-IP 로 덮어쓴다.
+        // X-Forwarded-For 의 "첫 번째 IP" 는 클라이언트가 임의로 위조할 수 있으므로 우선순위에서 제외하고,
+        // 신뢰값인 X-Real-IP 를 우선 사용한다.
+        String ip = request.getHeader("X-Real-IP");
+
+        if (ip == null || ip.isBlank() || "unknown".equalsIgnoreCase(ip)) {
+            // 폴백: X-Forwarded-For 는 "client, proxy1, ... , 신뢰프록시" 순서로 신뢰 프록시가 마지막에 덧붙인다.
+            // 따라서 위조 가능한 첫 IP 가 아니라 마지막(신뢰 프록시가 추가한) IP 를 사용한다.
+            String forwarded = request.getHeader("X-Forwarded-For");
+            if (forwarded != null && !forwarded.isBlank() && !"unknown".equalsIgnoreCase(forwarded)) {
+                String[] parts = forwarded.split(",");
+                ip = parts[parts.length - 1].trim();
+            }
         }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+        if (ip == null || ip.isBlank() || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getRemoteAddr();
-        }
-        // X-Forwarded-For에 여러 IP가 있는 경우 첫 번째 IP 사용
-        if (ip != null && ip.contains(",")) {
-            ip = ip.split(",")[0].trim();
         }
         return ip;
     }
