@@ -155,6 +155,7 @@ public class OrdersService {
         return OrdersDto.VerifyRes.of(orders);
     }
 
+    @Transactional
     public OrdersDto.OrdersRes cancel(AuthUserDetails authUserDetails, Long ordersIdx) {
         Orders orders = ordersRepository.findByIdxAndUserAndPaidFalse(ordersIdx, authUserDetails.toEntity()).orElseThrow(
                 () -> BaseException.of(ORDERS_NOT_ORDERED)

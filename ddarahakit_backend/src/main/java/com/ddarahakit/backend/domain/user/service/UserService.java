@@ -193,6 +193,7 @@ public class UserService implements UserDetailsService {
     /**
      * 프로필 수정
      */
+    @Transactional
     public UserDto.UserProfileRes updateUserProfile(AuthUserDetails authUserDetails, UserDto.UserProfileReq dto) {
         User user = userRepository.findById(authUserDetails.getIdx()).orElseThrow(
                 () -> BaseException.of(RESPONSE_NULL_ERROR)
@@ -207,6 +208,7 @@ public class UserService implements UserDetailsService {
     /**
      * 프로필 수정
      */
+    @Transactional
     public UserDto.UserProfileRes updateUserProfile(AuthUserDetails authUserDetails, MultipartFile multipartFile) {
         User user = userRepository.findById(authUserDetails.getIdx()).orElseThrow(
                 () -> BaseException.of(RESPONSE_NULL_ERROR)
@@ -279,6 +281,7 @@ public class UserService implements UserDetailsService {
     /**
      * 로그인 한 상태에서 비밀번호 변경
      */
+    @Transactional
     public UserDto.SignupRes updatePassword(AuthUserDetails authUserDetails, UserDto.UpdatePasswordReq dto) {
         User user = userRepository.findById(authUserDetails.getIdx()).orElseThrow(
                 () -> BaseException.of(RESPONSE_NULL_ERROR)

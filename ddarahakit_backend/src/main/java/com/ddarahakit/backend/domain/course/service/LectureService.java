@@ -5,13 +5,16 @@ import com.ddarahakit.backend.domain.course.model.LectureDto;
 import com.ddarahakit.backend.domain.course.repository.LectureRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class LectureService {
     private final LectureRepository lectureRepository;
 
 
+    @Transactional
     public LectureDto.LectureRes lectureCreate(LectureDto.LectureReq dto) {
         Lecture lecture = lectureRepository.save(dto.toEntity());
 

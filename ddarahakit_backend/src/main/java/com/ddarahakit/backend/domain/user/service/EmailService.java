@@ -3,6 +3,7 @@ package com.ddarahakit.backend.domain.user.service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import static com.ddarahakit.backend.common.Constants.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmailService {
@@ -47,7 +49,8 @@ public class EmailService {
 
             emailSender.send(message);
         } catch (MessagingException e) {
-            e.printStackTrace(); // 로그 찍기 또는 예외 처리 로직 추가
+            // @Async 라 호출자가 예외를 받지 못하므로 여기서 로깅한다.
+            log.error("이메일 발송 실패 (type={}, to={})", type, email, e);
         }
     }
 }

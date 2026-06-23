@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
             errors.put(error.getField(), error.getDefaultMessage());
         }
 
-        System.out.println(errors);
+        log.warn("[VALIDATION] 입력값 검증 실패: {}", errors);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(BaseResponse.error(REQUEST_ERROR, errors));
     }

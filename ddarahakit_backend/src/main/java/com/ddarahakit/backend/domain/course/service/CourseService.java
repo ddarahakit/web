@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,7 @@ import static com.ddarahakit.backend.common.model.BaseResponseStatus.*;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class CourseService {
     private final CourseRepository courseRepository;
     private final LectureRepository lectureRepository;
@@ -243,6 +245,7 @@ public class CourseService {
                 .orElse(LectureDto.LectureCompleteRes.of(lectureList.get(0))); // 예외 처리용 기본값 반환
     }
 
+    @Transactional
     public LectureDto.LectureCompleteRes lectureComplete(AuthUserDetails authUserDetails, LectureDto.LectureCompleteReq dto) {
         Optional<LectureComplete> result = lectureCompleteRepository.findByUserIdxAndCourseIdxAndLectureIdx(authUserDetails.getIdx(), dto.getCourseIdx(),dto.getLectureIdx());
 
