@@ -26,6 +26,7 @@
     "vuetify": "^3.7.9"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.0",
     "@vitejs/plugin-vue": "^5.2.1",
     "vite": "^6.0.5"
   }
