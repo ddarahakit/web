@@ -94,12 +94,28 @@ public class SecurityConfig {
             config.userInfoEndpoint((endpoint) -> endpoint.userService(oAuth2UserService));
         });
 
+        // 기본 정책은 "인증 필요"(화이트리스트). 공개 엔드포인트만 명시적으로 permitAll 하고,
+        // 목록에 없는(또는 신규로 추가되는) 엔드포인트는 자동으로 인증이 요구된다.
         http.authorizeHttpRequests((auth) ->
                 auth
+                        // CORS 프리플라이트는 항상 허용
+                        .requestMatchers(OPTIONS, "/**").permitAll()
+
+                        // Swagger / 에러 디스패치 / OAuth2 로그인 플로우 (공개)
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/error").permitAll()
+                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+
+                        // === 인증 필요 엔드포인트 (구체 규칙이 먼저 매칭되도록 아래 공개 규칙보다 위에 둔다) ===
                         .requestMatchers(POST, "/roadmap").authenticated()
-                        .requestMatchers(GET, "/roadmap", "/roadmap/*").permitAll()
+                        .requestMatchers(PUT, "/roadmap/*").authenticated()
+                        .requestMatchers(DELETE, "/roadmap/*").authenticated()
+                        .requestMatchers(POST, "/orders/create", "/orders/verify").authenticated()
+                        .requestMatchers(GET, "/orders/check/*").authenticated()
+                        .requestMatchers(POST, "/orders/*/free-complete").authenticated()
                         .requestMatchers(POST, "/orders/*/refund").authenticated()
-                        .requestMatchers(POST, "/review/*", "/orders/*").authenticated()
+                        .requestMatchers(GET, "/orders/*/receipt").authenticated()
+                        .requestMatchers(DELETE, "/orders/*").authenticated()
+                        .requestMatchers(POST, "/review/*").authenticated()
                         .requestMatchers(PUT, "/review/*").authenticated()
                         .requestMatchers(DELETE, "/review/*").authenticated()
                         .requestMatchers(GET, "/cart", "/cart/count").authenticated()
@@ -110,22 +126,32 @@ public class SecurityConfig {
                         .requestMatchers(PUT, "/community/post/*", "/community/comment/*").authenticated()
                         .requestMatchers(DELETE, "/community/post/*", "/community/comment/*").authenticated()
                         .requestMatchers(GET, "/community/scrap").authenticated()
-                        .requestMatchers(POST, "/community/scrap/*").authenticated()
-                        .requestMatchers(POST, "/community/scrap/*/toggle").authenticated()
+                        .requestMatchers(POST, "/community/scrap/*", "/community/scrap/*/toggle").authenticated()
                         .requestMatchers(DELETE, "/community/scrap/*").authenticated()
+                        .requestMatchers(POST, "/lecture/create").authenticated()
+                        .requestMatchers(POST, "/course/lecture/complete").authenticated()
                         .requestMatchers(POST, "/user/logout/all").authenticated()
                         .requestMatchers(PUT, "/user/password/update").authenticated()
                         .requestMatchers(GET, "/user/profile", "/user/myreview", "/user/ordered", "/user/myquestion", "/user/mypost", "/user/payments", "/user/study/weekly").authenticated()
-                        .requestMatchers(GET, "/orders/*/receipt").authenticated()
                         .requestMatchers(PUT, "/user/profile").authenticated()
                         .requestMatchers(POST, "/user/profile").authenticated()
                         .requestMatchers(GET, "/mentoring", "/mentoring/*", "/mentoring/*/messages").authenticated()
                         .requestMatchers(POST, "/mentoring", "/mentoring/*/messages").authenticated()
                         .requestMatchers(PATCH, "/mentoring/*/read").authenticated()
                         .requestMatchers(DELETE, "/mentoring/*").authenticated()
-                        .requestMatchers(PUT, "/roadmap/*").authenticated()
-                        .requestMatchers(DELETE, "/roadmap/*").authenticated()
-                        .anyRequest().permitAll()
+
+                        // === 공개(비로그인 허용) 엔드포인트 ===
+                        .requestMatchers(GET, "/course/**").permitAll()
+                        .requestMatchers(GET, "/roadmap", "/roadmap/*").permitAll()
+                        .requestMatchers(GET, "/stats/**").permitAll()
+                        .requestMatchers(GET, "/review/*").permitAll()
+                        .requestMatchers(GET, "/community/**").permitAll()
+                        .requestMatchers(POST, "/user/login", "/user/social/login", "/user/signup", "/user/email/verify", "/user/password/reset").permitAll()
+                        .requestMatchers(PUT, "/user/password/reset").permitAll()
+                        .requestMatchers(GET, "/user/token/refresh", "/user/logout", "/user/email/duplicate", "/user/check", "/user/uuid/check").permitAll()
+
+                        // === 그 외 전부 인증 필요 (화이트리스트 기본 정책) ===
+                        .anyRequest().authenticated()
         );
 
         // 인증 실패(미인증/유효하지 않은 토큰으로 보호 엔드포인트 접근) 시 401(code 20001) 반환.
