@@ -1,6 +1,5 @@
 package com.ddarahakit.backend.domain.user.service;
 
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,8 +47,9 @@ public class EmailService {
             helper.setText(htmlContent, true); // 두 번째 파라미터가 true면 HTML 형식이라는 뜻
 
             emailSender.send(message);
-        } catch (MessagingException e) {
-            // @Async 라 호출자가 예외를 받지 못하므로 여기서 로깅한다.
+        } catch (Exception e) {
+            // MimeMessage 생성(MessagingException)뿐 아니라 send() 의 Spring MailException(unchecked)까지 포착한다.
+            // 메일 발송 실패가 호출 트랜잭션(예: 회원가입)을 롤백시키지 않도록 여기서 삼키고 로깅만 한다.
             log.error("이메일 발송 실패 (type={}, to={})", type, email, e);
         }
     }
