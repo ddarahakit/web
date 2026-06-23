@@ -1,5 +1,3 @@
-import routeUtil from '@/utils/routeUtil'
-
 /**
  * 주문문 라우트
  */

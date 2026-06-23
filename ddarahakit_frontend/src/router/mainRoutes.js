@@ -1,5 +1,3 @@
-import routeUtil from '@/utils/routeUtil'
-
 /**
  * 메인 라우트
  */
@@ -10,9 +8,7 @@ const mainRoutes = {
         {
             name: 'main',
             path: 'main',
-            component: () => import('@/views/main/Main.vue'),
-            beforeEnter: [routeUtil.settingHistoryStore],
-            meta: {
+            component: () => import('@/views/main/Main.vue'),            meta: {
                 title: '따라하면서 배우는 IT',
                 requiresAuth: false
             }

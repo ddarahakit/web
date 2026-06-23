@@ -1,5 +1,3 @@
-import routeUtil from '@/utils/routeUtil'
-
 /**
  * 코스 라우트
  */
@@ -10,9 +8,7 @@ const courseRoutes = {
         {
             name: 'communityList',
             path: 'list',
-            component: () => import('@/views/community/CommunityList.vue'),
-            beforeEnter: [routeUtil.settingHistoryStore],
-            meta: {
+            component: () => import('@/views/community/CommunityList.vue'),            meta: {
                 title: '질문 게시판 | 따라학잇',
                 requiresAuth: false
             }
@@ -20,9 +16,7 @@ const courseRoutes = {
         {
             name: 'communityListByCourse',
             path: 'list/:courseIdx',
-            component: () => import('@/views/community/CommunityList.vue'),
-            beforeEnter: [routeUtil.settingHistoryStore],
-            meta: {
+            component: () => import('@/views/community/CommunityList.vue'),            meta: {
                 title: '질문 게시판 | 따라학잇',
                 requiresAuth: false
             }

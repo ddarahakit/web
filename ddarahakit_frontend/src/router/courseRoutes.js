@@ -1,5 +1,3 @@
-import routeUtil from '@/utils/routeUtil'
-
 /**
  * 코스 라우트
  */
@@ -10,9 +8,7 @@ const courseRoutes = {
         {
             name: 'courseList',
             path: 'list',
-            component: () => import('@/views/course/CourseList.vue'),
-            beforeEnter: [routeUtil.settingHistoryStore],
-            meta: {
+            component: () => import('@/views/course/CourseList.vue'),            meta: {
                 title: '전체 강의 | 따라학잇',
                 category: [{ name: '전체 강의', path: '/course/list' }],
                 requiresAuth: false,
