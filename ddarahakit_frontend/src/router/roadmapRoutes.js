@@ -16,7 +16,7 @@ const roadmapRoutes = {
         },
         {
             name: 'roadmapDetail',
-            path: ':roadmapId',
+            path: ':roadmapId(\\d+)', // 숫자만 허용 (비숫자 id 가 상세로 매칭돼 크래시하던 문제 방지)
             component: () => import('@/views/roadmap/RoadmapDetail.vue'),
             meta: {
                 title: '로드맵 상세 | 따라학잇',
