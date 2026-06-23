@@ -25,10 +25,10 @@ dist-ssr
 *.sw?
 
 
-# 환경변수
+# 환경변수 (모두 미추적 — 운영값은 빌드 시 build-arg 로 주입)
 .env*
-# 단, 프로덕션 빌드 환경값은 추적(CI/Kaniko 빌드가 레포에서 사용). 민감 서버비밀 아님(클라이언트 번들에 인라인됨)
-!.env.production
+# 환경변수 예시 문서만 추적(실제 값 없이 placeholder)
+!.env.example
 
 
 
