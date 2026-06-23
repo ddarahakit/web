@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router'
 import useAuthStore from '@/stores/useAuthStore'
 import api from '@/api/lecture'
@@ -11,9 +11,9 @@ const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore()
 
-// Route Params
-const courseIdx = route.params.courseIdx
-const lectureIdx = route.params.lectureIdx
+// Route Params (라우트 변경 시 반응형으로 갱신 → 같은 컴포넌트 재사용 시에도 watch 로 재조회)
+const courseIdx = computed(() => route.params.courseIdx)
+const lectureIdx = computed(() => route.params.lectureIdx)
 
 // Refs
 const mainContent = ref(null)
@@ -39,8 +39,8 @@ const lecture = ref({
 });
 
 // Sidebar state (closed by default on mobile)
-// 강의 이동은 window.location 으로 전체 새로고침되므로, 열림/닫힘 상태를
-// localStorage 에 저장·복원해 다음/이전/완료로 이동해도 같은 상태를 유지한다.
+// 사이드바 열림/닫힘 상태를 localStorage 에 저장·복원해 페이지 새로고침(F5) 후에도 유지한다.
+// (강의 이동은 SPA 라우팅이라 컴포넌트가 재사용되므로 세션 중에는 ref 로 자연히 유지된다)
 const SIDEBAR_STORAGE_KEY = 'lectureSidebarClosed'
 
 const loadSidebarClosed = () => {
@@ -120,7 +120,7 @@ const currentSectionName = computed(() => {
     const sections = lecture.value.course.sections;
     if (!sections) return '';
     for (let i = 0; i < sections.length; i++) {
-        if (sections[i].lectures.some(l => l.idx == lectureIdx)) {
+        if (sections[i].lectures.some(l => l.idx == lectureIdx.value)) {
             return `섹션 ${i + 1}. ${sections[i].name}`;
         }
     }
@@ -131,7 +131,7 @@ const currentLessonNumber = computed(() => {
     const sections = lecture.value.course.sections;
     if (!sections || sections.length === 0) return 0;
     const allLectures = sections.flatMap(s => s.lectures);
-    const index = allLectures.findIndex(l => l.idx == lectureIdx);
+    const index = allLectures.findIndex(l => l.idx == lectureIdx.value);
     return index >= 0 ? index + 1 : 0;
 });
 
@@ -148,7 +148,7 @@ const logout = () => {
  * 코스 상세 조회
  */
 const getLectureDetail = async () => {
-    const data = await api.lectureDetail(courseIdx, lectureIdx)
+    const data = await api.lectureDetail(courseIdx.value, lectureIdx.value)
     if (data.success) {
         if (data.results) {
             lecture.value = data.results
@@ -156,9 +156,9 @@ const getLectureDetail = async () => {
         }
     } else {
         if (data.code === 40005) {
-            router.push({ name: 'ordersCart', params: { courseIdx: courseIdx } })
+            router.push({ name: 'ordersCart', params: { courseIdx: courseIdx.value } })
         } else if (data.code === 20007) {
-            router.push({ name: 'courseDetail', params: { courseIdx: courseIdx } })
+            router.push({ name: 'courseDetail', params: { courseIdx: courseIdx.value } })
         }
     }
 }
@@ -182,7 +182,7 @@ const autoPlayVideo = (event) => {
  * 강의 수강 완료
  */
 const lectureComplete = async () => {
-    const data = await api.lectureComplete(courseIdx, lectureIdx)
+    const data = await api.lectureComplete(courseIdx.value, lectureIdx.value)
     if (data.success) {
         goNextLecture()
     }
@@ -191,13 +191,17 @@ const lectureComplete = async () => {
 /**
  * 이전 강의 이동
  */
+// 강의 이동: 전체 새로고침 대신 SPA 라우팅(같은 라우트, 파라미터만 변경 → 아래 watch 가 재조회)
+const goToLecture = (targetLectureIdx) => {
+    router.push({ name: 'lecture', params: { courseIdx: courseIdx.value, lectureIdx: targetLectureIdx } });
+}
+
 const goPreviousLecture = () => {
-    const currentIdx = Number(lectureIdx);
+    const currentIdx = Number(lectureIdx.value);
     const allLectures = lecture.value.course.sections.flatMap(section => section.lectures);
     const currentLectureIndex = allLectures.findIndex(lect => lect.idx === currentIdx);
     if (currentLectureIndex > 0) {
-        const prevLecture = allLectures[currentLectureIndex - 1];
-        window.location.href = `/lecture/${courseIdx}/${prevLecture.idx}`;
+        goToLecture(allLectures[currentLectureIndex - 1].idx);
     }
 }
 
@@ -205,14 +209,22 @@ const goPreviousLecture = () => {
  * 다음 강의 이동
  */
 const goNextLecture = () => {
-    const currentIdx = Number(lectureIdx);
+    const currentIdx = Number(lectureIdx.value);
     const allLectures = lecture.value.course.sections.flatMap(section => section.lectures);
     const currentLectureIndex = allLectures.findIndex(lect => lect.idx === currentIdx);
     if (currentLectureIndex < allLectures.length - 1) {
-        const nextLecture = allLectures[currentLectureIndex + 1];
-        window.location.href = `/lecture/${courseIdx}/${nextLecture.idx}`;
+        goToLecture(allLectures[currentLectureIndex + 1].idx);
     }
 }
+
+// 같은 'lecture' 라우트 내에서 강의(lectureIdx)만 바뀌면 컴포넌트가 재사용되므로,
+// 파라미터 변화를 감지해 강의 데이터를 다시 불러온다(전체 새로고침 제거의 핵심).
+watch(() => route.params.lectureIdx, (newIdx, oldIdx) => {
+    if (newIdx && newIdx !== oldIdx) {
+        getLectureDetail()
+        window.scrollTo({ top: 0 })
+    }
+})
 
 /**
  * 컴포넌트 마운트
@@ -312,8 +324,8 @@ onUnmounted(() => {
                             class="px-5 py-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-slate-50/50">
                             {{ section.name }}</div>
                         <div class="mt-1">
-                            <a v-for="lect in section.lectures" :key="lect.idx"
-                                :href="`/lecture/${courseIdx}/${lect.idx}`"
+                            <router-link v-for="lect in section.lectures" :key="lect.idx"
+                                :to="{ name: 'lecture', params: { courseIdx, lectureIdx: lect.idx } }"
                                 class="w-full px-5 py-4 flex items-center gap-3 text-sm text-left transition-colors border-b border-slate-50 block"
                                 :class="lect.idx == lectureIdx ? 'active-lesson' : 'hover:bg-slate-50'">
                                 <i v-if="lect.complete" class="fa-solid fa-square-check text-green-500"></i>
@@ -323,7 +335,7 @@ onUnmounted(() => {
                                 <span
                                     :class="lect.idx == lectureIdx ? 'text-slate-900 font-bold' : 'text-slate-500 font-medium'">{{
                                         lect.name }}</span>
-                            </a>
+                            </router-link>
                         </div>
                     </div>
                 </div>
