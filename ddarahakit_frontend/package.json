@@ -12,6 +12,7 @@
     "@portone/browser-sdk": "^0.0.13",
     "@tailwindcss/vite": "^4.1.18",
     "axios": "^1.7.9",
+    "dompurify": "^3.4.11",
     "encrypt-storage": "^2.14.6",
     "highlight.js": "^11.11.1",
     "nprogress": "^0.2.0",

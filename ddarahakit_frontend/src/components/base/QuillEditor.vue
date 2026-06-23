@@ -7,6 +7,7 @@ import 'highlight.js/styles/atom-one-dark.css'
 import 'quill/dist/quill.snow.css'
 import api from '@/api/community'
 import { qnaImageUrl } from '@/utils/image'
+import { sanitizeHtml } from '@/utils/sanitizeUtil'
 
 const Delta = Quill.import('delta')
 Quill.register('modules/imageDropAndPaste', QuillImageDropAndPaste)
@@ -284,8 +285,8 @@ const setContent = (content) => {
             // 유효한 Delta JSON
             quill.setContents(parsed)
         } else if (/<[a-z][\s\S]*>/i.test(content)) {
-            // HTML로 추정
-            quill.clipboard.dangerouslyPasteHTML(content)
+            // HTML로 추정 — 삽입 전 정화(XSS 방지)
+            quill.clipboard.dangerouslyPasteHTML(sanitizeHtml(content))
         } else {
             // 일반 텍스트
             quill.setText(content)
@@ -314,7 +315,7 @@ const getText = () => {
  */
 const pasteHtml = (html) => {
     if (!quill) return
-    quill.clipboard.dangerouslyPasteHTML(html)
+    quill.clipboard.dangerouslyPasteHTML(sanitizeHtml(html))
 }
 
 /**

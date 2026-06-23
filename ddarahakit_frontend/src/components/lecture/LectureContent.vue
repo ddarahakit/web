@@ -4,6 +4,7 @@ import Quill from "quill";
 import "quill/dist/quill.snow.css"; // 원하는 테마 import
 import hljs from "highlight.js";
 import "highlight.js/styles/atom-one-dark.css";
+import { sanitizeHtml } from "@/utils/sanitizeUtil";
 
 
 //props 설정
@@ -55,7 +56,7 @@ const setContent = (content) => {
     if (isDelta(parsed)) {
         contentQuill.setContents(parsed)
     } else if (/<[a-z][\s\S]*>/i.test(content)) {
-        contentQuill.clipboard.dangerouslyPasteHTML(content)
+        contentQuill.clipboard.dangerouslyPasteHTML(sanitizeHtml(content))
     } else {
         contentQuill.setText(content)
     }
