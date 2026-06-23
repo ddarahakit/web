@@ -102,7 +102,7 @@ class CommunityControllerTest {
         mockMvc.perform(post("/community/post")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

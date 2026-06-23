@@ -80,7 +80,7 @@ class MentoringControllerTest {
     @DisplayName("GET /mentoring - 비인증 시 401")
     void list_비인증_401() throws Exception {
         mockMvc.perform(get("/mentoring"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

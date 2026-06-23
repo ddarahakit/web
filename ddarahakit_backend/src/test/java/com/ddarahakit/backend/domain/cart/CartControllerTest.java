@@ -75,7 +75,7 @@ class CartControllerTest {
     @DisplayName("GET /cart - 비인증 시 401")
     void list_비인증_401() throws Exception {
         mockMvc.perform(get("/cart"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

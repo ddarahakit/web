@@ -48,7 +48,7 @@ class CourseSearchControllerTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.results.courses[0].name").value("스프링 부트 입문"))
                 .andExpect(jsonPath("$.results.courses[0].level").value("BEGINNER"))
-                .andExpect(jsonPath("$.results.courses[0].levelDescription").value("초급"));
+                .andExpect(jsonPath("$.results.courses[0].levelDescription").value("쉬움"));
     }
 
     @Test
