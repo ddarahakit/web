@@ -1,35 +1,16 @@
 import $axios from '@/plugins/axiosInterceptor'
 import PortOne from "@portone/browser-sdk/v2"
 import commonUtil from '@/utils/commonUtil'
+import { request } from '@/api/request'
 
-
-/**
- * 주문 생성하기
- */
-const ordersCreate = async (req) => {
-    //결과
-    let data = {}
-
-    //API 호출
-    await $axios
-        .post('/orders/create', req)
-        .then((res) => {
-            //성공
-            data = res.data
-        })
-        .catch((error) => {
-            //실패
-            data = error.data
-        })
-
-    return data
-}
+/** 주문 생성하기 */
+const ordersCreate = (req) => request($axios.post('/orders/create', req))
 
 /**
- * 결제하기
+ * 결제하기 (PortOne SDK)
+ * 표준 request() 래퍼 미적용: 성공 응답이 res 객체 자체(res.data 아님)이기 때문.
  */
 const ordersPayment = async (req) => {
-    //결과
     let data = {}
 
     // 결제 ID
@@ -58,118 +39,22 @@ const ordersPayment = async (req) => {
     return data
 }
 
+/** 결제 검증 */
+const ordersVerify = (req) => request($axios.post('/orders/verify', req))
 
-
-const ordersVerify = async (req) => {
-    //결과
-    let data = {}
-
-    //API 호출
-    await $axios
-        .post('/orders/verify', req)
-        .then((res) => {
-            //성공
-            data = res.data
-        })
-        .catch((error) => {
-            //실패
-            data = error.data
-        })
-    return data
-}
-
-
-const ordersCancel = async (ordersIdx) => {
-    //결과
-    let data = {}
-
-    //API 호출
-    await $axios
-        .delete(`/orders/${ordersIdx}`)
-        .then((res) => {
-            //성공
-            data = res.data
-        })
-        .catch((error) => {
-            //실패
-            data = error.data
-        })
-    return data
-}
-
-
-
-
+/** 주문 취소 */
+const ordersCancel = (ordersIdx) => request($axios.delete(`/orders/${ordersIdx}`))
 
 /**
  * 무료(₩0) 주문 완료
- *
- * 포트원 결제 없이 서버에서 주문을 즉시 완료 처리한다.
- * 서버가 해당 주문의 salePrice 합계가 실제 0인지 재검증한다.
+ * 포트원 결제 없이 서버에서 주문을 즉시 완료 처리한다(서버가 salePrice 합계 0 재검증).
  */
-const ordersFreeComplete = async (ordersIdx) => {
-    //결과
-    let data = {}
+const ordersFreeComplete = (ordersIdx) => request($axios.post(`/orders/${ordersIdx}/free-complete`))
 
-    //API 호출
-    await $axios
-        .post(`/orders/${ordersIdx}/free-complete`)
-        .then((res) => {
-            //성공
-            data = res.data
-        })
-        .catch((error) => {
-            //실패
-            data = error.data
-        })
-    return data
-}
+/** 주문 확인 */
+const ordersCheck = (courseIdx) => request($axios.get(`/orders/check/${courseIdx}`))
 
-
-const ordersCheck = async (courseIdx) => {
-    //결과
-    let data = {}
-
-    //API 호출
-    await $axios
-        .get(`/orders/check/${courseIdx}`)
-        .then((res) => {
-            //성공
-            data = res.data
-        })
-        .catch((error) => {
-            //실패
-            data = error.data
-        })
-    return data
-}
-
-
-/**
- * 영수증 조회
- *
- * GET /orders/{ordersIdx}/receipt
- * results: ReceiptRes { ordersIdx, paymentId, paymentPrice, refunded, paidAt, items[] }
- */
-const ordersReceipt = async (ordersIdx) => {
-    //결과
-    let data = {}
-
-    //API 호출
-    await $axios
-        .get(`/orders/${ordersIdx}/receipt`)
-        .then((res) => {
-            //성공
-            data = res.data
-        })
-        .catch((error) => {
-            //실패
-            data = error.data
-        })
-    return data
-}
-
-
-
+/** 영수증 조회 (GET /orders/{ordersIdx}/receipt) */
+const ordersReceipt = (ordersIdx) => request($axios.get(`/orders/${ordersIdx}/receipt`))
 
 export default { ordersCreate, ordersPayment, ordersVerify, ordersCancel, ordersFreeComplete, ordersCheck, ordersReceipt }

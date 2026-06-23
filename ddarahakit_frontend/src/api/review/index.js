@@ -1,101 +1,18 @@
 import $axios from '@/plugins/axiosInterceptor'
+import { request } from '@/api/request'
 
-/**
- * 리뷰 더 보기
- */
-const reviewList = async (courseIdx, page) => {
-    //결과
-    let data = {}
+/** 리뷰 더 보기 */
+const reviewList = (courseIdx, page) => request($axios.get(`/review/${courseIdx}?page=${page}`))
 
-    //API 호출
-    await $axios
-        .get(`/review/${courseIdx}?page=${page}`)
-        .then((res) => {
-            //성공
-            data = res.data
-        })
-        .catch((error) => {
-            //실패
-            data = error.data
-        })
+/** 리뷰 작성하기 */
+const reviewCreate = (courseIdx, req) =>
+    request($axios.post(`/review/${courseIdx}`, { comment: req.comment, rating: req.rating }))
 
-    return data
-}
+/** 리뷰 수정하기 */
+const reviewUpdate = (courseIdx, req) =>
+    request($axios.put(`/review/${courseIdx}`, { comment: req.comment, rating: req.rating }))
 
-
-/**
- * 리뷰 작성하기
- */
-const reviewCreate = async (courseIdx, req) => {
-    //요청 정보
-    const reviewInfo = {
-        comment: req.comment,
-        rating: req.rating
-    }
-    //결과
-    let data = {}
-
-    //API 호출
-    await $axios
-        .post(`/review/${courseIdx}`, reviewInfo)
-        .then((res) => {
-            //성공
-            data = res.data
-        })
-        .catch((error) => {
-            //실패
-            data = error.data
-        })
-
-    return data
-}
-
-const reviewUpdate = async (courseIdx, req) => {
-    //요청 정보
-    const reviewInfo = {
-        comment: req.comment,
-        rating: req.rating
-    }
-    //결과
-    let data = {}
-
-    //API 호출
-    await $axios
-        .put(`/review/${courseIdx}`, reviewInfo)
-        .then((res) => {
-            //성공
-            data = res.data
-        })
-        .catch((error) => {
-            //실패
-            data = error.data
-        })
-
-    return data
-}
-
-
-/**
- * 리뷰 삭제하기
- */
-const reviewDelete = async (courseIdx) => {
-    
-    //결과
-    let data = {}
-
-    //API 호출
-    await $axios
-        .delete(`/review/${courseIdx}`)
-        .then((res) => {
-            //성공
-            data = res.data
-        })
-        .catch((error) => {
-            //실패
-            data = error.data
-        })
-
-    return data
-}
+/** 리뷰 삭제하기 */
+const reviewDelete = (courseIdx) => request($axios.delete(`/review/${courseIdx}`))
 
 export default { reviewList, reviewCreate, reviewUpdate, reviewDelete }
