@@ -4,6 +4,7 @@ import api from '@/api/course'
 import { useRoute, useRouter } from 'vue-router'
 import useCategoryStore from '@/stores/useCategoryStore'
 import { formatPrice } from '@/utils/price'
+import { getAverageRating } from '@/utils/ratingUtil'
 
 //라우트 정보 객체
 const route = useRoute();
@@ -156,13 +157,6 @@ const syncLevelsFromQuery = () => {
     const picked = str.split(',').map(s => s.trim()).filter(v => LEVELS.includes(v))
     // 유효값만, LEVELS 순서로 정규화해 저장
     selectedLevels.value = LEVELS.filter(l => picked.includes(l))
-}
-
-const getAverageRating = (course) => {
-    if (course.totalReviewsCount === 0) return "0.0";
-    return (
-        Math.ceil((course.rating5 * 5 + course.rating4 * 4 + course.rating3 * 3 + course.rating2 * 2 + course.rating1) / course.totalReviewsCount * 10) / 10
-    ).toFixed(1);
 }
 
 // 카테고리 강의 수: 자기 자신 + 하위 카테고리 합산 (부모 카테고리가 0 으로 보이는 문제 해결)

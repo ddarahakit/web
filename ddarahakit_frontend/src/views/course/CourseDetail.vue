@@ -9,6 +9,7 @@ import communityApi from '@/api/community'
 import commonUtil from '@/utils/commonUtil'
 import UserAvatar from '@/components/base/UserAvatar.vue'
 import { formatPrice } from '@/utils/price'
+import { getAverageRating, getRatingWidth } from '@/utils/ratingUtil'
 import useCategoryStore from '@/stores/useCategoryStore'
 import QuillEditor from '@/components/base/QuillEditor.vue'
 
@@ -347,18 +348,6 @@ onMounted(() => {
         }
     }
 })
-
-const getAverageRating = (course) => {
-    if (course.totalReviewsCount === 0) return "0.0";
-    return (
-        Math.ceil((course.rating5 * 5 + course.rating4 * 4 + course.rating3 * 3 + course.rating2 * 2 + course.rating1) / course.totalReviewsCount * 10) / 10
-    ).toFixed(1);
-}
-
-const getRatingWidth = (rating, totalReviewsCount) => {
-    if (totalReviewsCount === 0) return "0%";
-    return (rating * 100 / totalReviewsCount) + '%';
-}
 
 // 이미 장바구니에 추가된 코스 응답 코드
 const CART_ALREADY_ADDED_CODE = 40006
