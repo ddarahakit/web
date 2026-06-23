@@ -307,15 +307,17 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("비밀번호 재설정 이메일 요청 - 이메일 없음 예외")
-    void resetPasswordEmailReq_이메일없음_예외() {
+    @DisplayName("비밀번호 재설정 이메일 요청 - 미가입 이메일은 예외 없이 무발송(사용자 열거 방지)")
+    void resetPasswordEmailReq_미가입_무발송() {
         UserDto.ResetPasswordEmailReq req = mock(UserDto.ResetPasswordEmailReq.class);
         when(req.getEmail()).thenReturn("notexist@test.com");
         when(userRepository.findByEmail("notexist@test.com")).thenReturn(Optional.empty());
 
-        BaseException ex = assertThrows(BaseException.class,
-                () -> userService.resetPasswordEmailReq(req));
-        assertEquals(RESPONSE_NULL_ERROR, ex.getStatus());
+        // 가입 여부 노출 방지: 예외 없이 정상 반환하되 메일/토큰은 생성하지 않는다.
+        userService.resetPasswordEmailReq(req);
+
+        verify(emailService, never()).sendEmail(anyString(), anyString(), anyString());
+        verify(emailVerifyRepository, never()).save(any(EmailVerify.class));
     }
 
     // ============================

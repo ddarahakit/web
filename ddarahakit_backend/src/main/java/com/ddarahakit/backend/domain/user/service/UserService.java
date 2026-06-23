@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.ddarahakit.backend.common.Constants.*;
@@ -224,12 +225,15 @@ public class UserService implements UserDetailsService {
      */
     @Transactional
     public void resetPasswordEmailReq(UserDto.ResetPasswordEmailReq dto) {
+        // 사용자 열거(enumeration) 방지: 미가입 이메일도 동일하게 성공 응답을 반환하고,
+        // 실제 가입된 경우에만 메일 발송/토큰 저장을 수행한다.
+        Optional<User> userOpt = userRepository.findByEmail(dto.getEmail());
+        if (userOpt.isEmpty()) {
+            return;
+        }
+        User user = userOpt.get();
+
         String uuid = UUID.randomUUID().toString();
-
-        User user = userRepository.findByEmail(dto.getEmail()).orElseThrow(
-                () -> BaseException.of(RESPONSE_NULL_ERROR)
-        );
-
         emailService.sendEmail(dto.getEmail(), uuid, EMAIL_TYPE_PASSWORD_RESET);
         EmailVerify emailVerify = EmailVerify.builder()
                 .user(user)
