@@ -175,13 +175,10 @@ const reviewRatingRules = () => {
  * 리뷰 내용 유효성 룰
  */
 const reviewCommentRules = () => {
-    console.log('리뷰 내용 유효성 룰')
     if (reviewInput.comment !== '' && reviewInput.comment !== '\n') {
-        console.log('리뷰 내용 유효성 룰 통과')
         reviewInputError.comment.errorMessage = null
         reviewInputError.comment.isValid = true
     } else {
-        console.log('리뷰 내용 유효성 룰 통과 실패')
         reviewInputError.comment.errorMessage = '리뷰 내용을 입력해주세요.'
         reviewInputError.comment.isValid = false
     }
@@ -614,6 +611,52 @@ const addCart = async () => {
             <!-- 수강생 후기 -->
             <section id="section-reviews" class="mt-12">
                 <h2 class="text-2xl font-bold text-gray-900 mb-6">수강생 리얼 후기 ⭐</h2>
+
+                <!-- 리뷰 작성/수정 폼 (수강한 사용자만, 미작성이거나 수정 중일 때) -->
+                <div v-if="course.ordered && (!course.reviewed || isEditing)"
+                    class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm mb-6">
+                    <h3 class="font-bold text-gray-900 mb-4">{{ isEditing ? '내 후기 수정' : '수강 후기 작성' }}</h3>
+                    <!-- 별점 선택 -->
+                    <div class="flex items-center gap-1">
+                        <button v-for="n in 5" :key="n" type="button"
+                            @click="reviewInput.rating = n; reviewRatingRules()"
+                            class="text-2xl transition-colors"
+                            :class="n <= reviewInput.rating ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-200'"
+                            :aria-label="`별점 ${n}점`">
+                            <i class="fa-solid fa-star"></i>
+                        </button>
+                        <span class="ml-2 text-sm text-gray-400">{{ reviewInput.rating > 0 ? `${reviewInput.rating}점` : '' }}</span>
+                    </div>
+                    <p v-if="reviewInputError.rating.errorMessage" class="text-red-500 text-xs mt-1">{{ reviewInputError.rating.errorMessage }}</p>
+                    <!-- 내용 -->
+                    <textarea v-model="reviewInput.comment" @input="reviewCommentRules" @blur="reviewCommentRules"
+                        rows="4" maxlength="500" placeholder="수강 후기를 남겨주세요."
+                        class="w-full mt-3 px-4 py-3 rounded-xl border border-gray-200 text-sm resize-none focus:outline-none focus:border-brand"></textarea>
+                    <p v-if="reviewInputError.comment.errorMessage" class="text-red-500 text-xs mt-1">{{ reviewInputError.comment.errorMessage }}</p>
+                    <!-- 버튼 -->
+                    <div class="flex justify-end gap-2 mt-4">
+                        <button v-if="isEditing" type="button" @click="resetReviewForm"
+                            class="px-5 py-2.5 text-sm text-gray-500 rounded-xl hover:bg-gray-100 transition-all">취소</button>
+                        <button type="button" :disabled="!isFormValid"
+                            @click="isEditing ? reviewUpdate() : reviewCreate()"
+                            class="px-6 py-2.5 bg-brand text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-100 disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-all">
+                            {{ isEditing ? '수정' : '작성' }}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 이미 작성한 후기: 수정/삭제 -->
+                <div v-else-if="course.ordered && course.reviewed"
+                    class="flex items-center justify-between p-4 bg-blue-50/50 border border-blue-100 rounded-2xl mb-6">
+                    <p class="text-sm text-gray-600"><i class="fa-solid fa-circle-check text-brand mr-2"></i>이미 후기를 작성하셨습니다.</p>
+                    <div class="flex gap-2">
+                        <button type="button" @click="editReview(course.reviews.list[0])"
+                            class="px-4 py-2 text-sm font-bold text-brand border border-brand/30 rounded-xl hover:bg-brand/5 transition-all">수정</button>
+                        <button type="button" @click="deleteReview(courseIdx)"
+                            class="px-4 py-2 text-sm font-bold text-red-400 border border-red-100 rounded-xl hover:bg-red-50 transition-all">삭제</button>
+                    </div>
+                </div>
+
                 <div class="grid gap-6">
                     <div v-for="(review, index) in course.reviews.list" :key="index"
                         class="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm">
