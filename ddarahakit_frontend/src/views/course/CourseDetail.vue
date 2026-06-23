@@ -364,6 +364,13 @@ onMounted(() => {
 const CART_ALREADY_ADDED_CODE = 40006
 
 const addCart = async () => {
+    // 비로그인 시: 장바구니 추가는 인증이 필요하다. 인터셉터는 "세션이 있었을 때만" 로그인으로
+    // 리다이렉트하므로(로그아웃 상태 반복 알림 방지), 비로그인 사용자는 여기서 직접 로그인 페이지로 보낸다.
+    if (!authStore.isLogin) {
+        router.push({ name: 'login', query: { redirect: route.fullPath } })
+        return
+    }
+
     // cartApi.cartAdd 는 then/catch 응답을 모두 동일 data 객체로 반환하며 code 가 보존된다.
     // (HTTP 200 success:false 든 4xx 든 data.code 로 분기 가능)
     const data = await cartApi.cartAdd(courseIdx)
