@@ -64,10 +64,15 @@ public enum BaseResponseStatus {
     MENTORING_SESSION_CLOSED(false, 40023, "종료된 멘토링 세션입니다."),
     ROADMAP_NOT_FOUND(false, 40030, "로드맵을 찾을 수 없습니다."),
 
+    FILE_EMPTY(false, 40050, "업로드할 파일이 없습니다."),
+    FILE_INVALID_TYPE(false, 40051, "허용되지 않는 파일 형식입니다. 이미지 파일(png, jpg, jpeg, gif, webp)만 업로드할 수 있습니다."),
+    FILE_INVALID_PATH(false, 40052, "잘못된 파일 경로입니다."),
+
     /**
      * 50000 : Database 오류
      */
     DATABASE_ERROR(false, 50001, "데이터베이스 연결에 실패하였습니다."),
+    FILE_UPLOAD_FAIL(false, 50002, "파일 저장 중 오류가 발생했습니다."),
 
     /**
      * 60000 : Server 오류

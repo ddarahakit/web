@@ -1,5 +1,8 @@
 package com.ddarahakit.backend.domain.image;
 
+import com.ddarahakit.backend.common.exception.BaseException;
+import com.ddarahakit.backend.common.model.BaseResponseStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -11,17 +14,24 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.ddarahakit.backend.common.Constants.PROFILE_IMAGE_UPLOAD_PATH;
 import static com.ddarahakit.backend.common.Constants.QNA_IMAGE_UPLOAD_PATH;
 import static com.ddarahakit.backend.common.Constants.COMMUNITY_IMAGE_UPLOAD_PATH;
 
+@Slf4j
 @Service
 public class LocalFileUploadService implements FileUploadService {
 
+    // 허용 이미지 확장자 화이트리스트 (소문자)
+    private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of("png", "jpg", "jpeg", "gif", "webp");
 
     @Value("${project.upload.path}")
     private String defaultUploadPath;
@@ -44,51 +54,84 @@ public class LocalFileUploadService implements FileUploadService {
     }
 
     public String saveFile(MultipartFile file, String uploadPath) {
-        String originalName = file.getOriginalFilename();
+        if (file == null || file.isEmpty()) {
+            throw BaseException.of(BaseResponseStatus.FILE_EMPTY);
+        }
+
+        // 확장자 화이트리스트 + Content-Type 이중 검증 (악성/비이미지 업로드 차단)
+        String ext = extractAllowedExtension(file.getOriginalFilename());
+        String contentType = file.getContentType();
+        if (contentType != null && !contentType.toLowerCase(Locale.ROOT).startsWith("image/")) {
+            throw BaseException.of(BaseResponseStatus.FILE_INVALID_TYPE);
+        }
 
         String folderPath = makeFolder(uploadPath);
 
-        String saveFileName = uploadPath + folderPath + File.separator + UUID.randomUUID() + "_" + originalName;
+        // 저장 파일명은 UUID + 확장자로만 구성한다. 원본 파일명을 경로에 포함하지 않아
+        // 경로 조작(../)·특수문자 주입을 원천 차단한다.
+        String saveFileName = uploadPath + folderPath + File.separator + UUID.randomUUID() + "." + ext;
         File saveFile = new File(defaultUploadPath + File.separator + saveFileName);
 
         try {
             file.transferTo(saveFile);
             return saveFileName.replace(File.separator, "/");
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
+            log.error("파일 저장 실패: {}", saveFileName, e);
+            throw BaseException.of(BaseResponseStatus.FILE_UPLOAD_FAIL);
         }
+    }
 
+    // 원본 파일명에서 확장자만 추출해 화이트리스트로 검증한다. 미허용 시 예외.
+    private String extractAllowedExtension(String originalName) {
+        if (originalName == null) {
+            throw BaseException.of(BaseResponseStatus.FILE_INVALID_TYPE);
+        }
+        int dot = originalName.lastIndexOf('.');
+        if (dot < 0 || dot == originalName.length() - 1) {
+            throw BaseException.of(BaseResponseStatus.FILE_INVALID_TYPE);
+        }
+        String ext = originalName.substring(dot + 1).toLowerCase(Locale.ROOT);
+        if (!ALLOWED_IMAGE_EXTENSIONS.contains(ext)) {
+            throw BaseException.of(BaseResponseStatus.FILE_INVALID_TYPE);
+        }
+        return ext;
     }
 
     @Override
     public ResponseEntity<byte[]> display(String fileName) {
-        // 경로 구분자(\) 하드코딩·OS 의존성 제거: 백슬래시→슬래시 정규화 후 선행 슬래시 제거하여 업로드 루트 기준 상대경로로 해석
-        String relativePath = fileName.replace("\\", "/").replaceFirst("^/+", "");
-        File file = new File(defaultUploadPath, relativePath);
-
-        ResponseEntity<byte[]> result = null;
-
-        try {
-
-            HttpHeaders header = new HttpHeaders();
-
-        /*
-        Files.probeContentType() 해당 파일의 Content 타입을 인식(image, text/plain ...)
-        없으면 null 반환
-
-        file.toPath() -> file 객체를 Path객체로 변환
-
-        */
-            header.add("Content-type", Files.probeContentType(file.toPath()));
-
-            result = new ResponseEntity<>(FileCopyUtils.copyToByteArray(file), header, HttpStatus.OK);
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (fileName == null || fileName.isBlank()) {
+            return ResponseEntity.badRequest().build();
         }
 
-        return result;
+        // 백슬래시→슬래시 정규화 후 선행 슬래시 제거하여 업로드 루트 기준 상대경로로 해석
+        String relativePath = fileName.replace("\\", "/").replaceFirst("^/+", "");
+
+        // 경로 조작(../) 방어: 정규화된 대상 경로가 업로드 루트 하위인지 검증한다.
+        Path root = Paths.get(defaultUploadPath).toAbsolutePath().normalize();
+        Path target = root.resolve(relativePath).normalize();
+        if (!target.startsWith(root)) {
+            log.warn("업로드 루트 밖 파일 접근 차단: {}", fileName);
+            return ResponseEntity.badRequest().build();
+        }
+
+        File file = target.toFile();
+        if (!file.exists() || !file.isFile()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        try {
+            // Files.probeContentType() : 파일 Content 타입 인식(image/png ...), 미인식 시 null
+            String contentType = Files.probeContentType(target);
+            if (contentType == null) {
+                contentType = "application/octet-stream";
+            }
+            HttpHeaders header = new HttpHeaders();
+            header.add("Content-Type", contentType);
+            return new ResponseEntity<>(FileCopyUtils.copyToByteArray(file), header, HttpStatus.OK);
+        } catch (IOException e) {
+            log.error("이미지 조회 실패: {}", relativePath, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @Override
