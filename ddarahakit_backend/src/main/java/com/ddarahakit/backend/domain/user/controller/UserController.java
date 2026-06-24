@@ -211,8 +211,9 @@ public class UserController {
             AuthUserDetails authUserDetails,
             TokenPair tokenPair
     ) {
-        String accessCookie = String.format(accessFormat, tokenPair.accessToken(), accessMaxAge);
-        String refreshCookie = String.format(refreshFormat, tokenPair.refreshToken(), refreshMaxAge);
+        // Max-Age 는 초 단위. 설정값(access/refresh-max-age)은 밀리초이므로 /1000 (OAuth 성공 핸들러와 동일 규칙).
+        String accessCookie = String.format(accessFormat, tokenPair.accessToken(), accessMaxAge / 1000);
+        String refreshCookie = String.format(refreshFormat, tokenPair.refreshToken(), refreshMaxAge / 1000);
 
         // JWT 기반 principal(소셜 로그인 등)은 프로필 이미지를 담지 않으므로
         // DB에서 최신 사용자 정보를 다시 읽어 응답(프로필 이미지 포함)을 구성한다.
