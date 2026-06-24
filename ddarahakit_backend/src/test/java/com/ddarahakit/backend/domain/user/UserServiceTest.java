@@ -2,6 +2,7 @@ package com.ddarahakit.backend.domain.user;
 
 import com.ddarahakit.backend.common.exception.BaseException;
 import com.ddarahakit.backend.config.security.AuthUserDetails;
+import com.ddarahakit.backend.domain.community.CommentRepository;
 import com.ddarahakit.backend.domain.community.PostRepository;
 import com.ddarahakit.backend.domain.community.model.Post;
 import com.ddarahakit.backend.domain.community.model.PostType;
@@ -11,6 +12,7 @@ import com.ddarahakit.backend.domain.orders.OrdersItemRepository;
 import com.ddarahakit.backend.domain.review.ReviewRepository;
 import com.ddarahakit.backend.domain.review.model.Review;
 import com.ddarahakit.backend.domain.course.repository.LectureCompleteRepository;
+import com.ddarahakit.backend.domain.course.repository.LectureRepository;
 import com.ddarahakit.backend.domain.user.model.dto.UserDto;
 import com.ddarahakit.backend.domain.user.model.entity.EmailVerify;
 import com.ddarahakit.backend.domain.user.model.entity.User;
@@ -53,10 +55,11 @@ class UserServiceTest {
     @Mock EmailVerifyRepository emailVerifyRepository;
     @Mock OrdersItemRepository ordersItemRepository;
     @Mock ReviewRepository reviewRepository;
-    @Mock CourseService courseService;
     @Mock LectureCompleteRepository lectureCompleteRepository;
+    @Mock LectureRepository lectureRepository;
     @Mock FileUploadService fileUploadService;
     @Mock PostRepository postRepository;
+    @Mock CommentRepository commentRepository;
 
     @InjectMocks UserService userService;
 

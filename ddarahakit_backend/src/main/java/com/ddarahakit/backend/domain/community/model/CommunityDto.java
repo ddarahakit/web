@@ -233,10 +233,20 @@ public class CommunityDto {
         private final String createdAt;
 
         public static PostSummaryResponse from(Post post) {
-            return from(post, 0L, false);
+            // commentCount 미지정 → comments 컬렉션 size (단건/이미 로딩된 경우에만 사용 권장)
+            return from(post, 0L, false, Optional.ofNullable(post.getComments()).map(List::size).orElse(0));
         }
 
         public static PostSummaryResponse from(Post post, long scrapCount, boolean scrapped) {
+            return from(post, scrapCount, scrapped,
+                    Optional.ofNullable(post.getComments()).map(List::size).orElse(0));
+        }
+
+        /**
+         * 댓글 수를 외부(일괄 COUNT 집계)에서 주입받는 목록용 변환.
+         * 게시글마다 comments 컬렉션을 로딩하지 않아 목록 N+1/과대적재를 방지한다.
+         */
+        public static PostSummaryResponse from(Post post, long scrapCount, boolean scrapped, long commentCount) {
             User user = post.getUser();
             Course course = post.getCourse();
 
@@ -250,7 +260,7 @@ public class CommunityDto {
                     .userIdx(user != null ? user.getIdx() : null)
                     .courseName(course != null ? course.getName() : null)
                     .viewCount(post.getViewCount())
-                    .commentCount(Optional.ofNullable(post.getComments()).map(List::size).orElse(0))
+                    .commentCount((int) commentCount)
                     .scrapCount(scrapCount)
                     .scrapped(scrapped)
                     .createdAt(TimeAgoUtil.timeAgo(post.getCreatedAt()))

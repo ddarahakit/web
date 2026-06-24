@@ -422,6 +422,14 @@ public class CommunityService {
                         row -> (Long) row[0],
                         row -> (Long) row[1]
                 ));
+        // 댓글 수를 일괄 COUNT 로 집계(게시글마다 comments 컬렉션을 로딩하던 N+1/과대적재 제거)
+        final Map<Long, Long> commentCountMap = posts.isEmpty()
+                ? Map.of()
+                : commentRepository.countByPostIn(posts).stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> (Long) row[1]
+                ));
         final Set<Long> scrappedPostIds = (authUserDetails != null && !posts.isEmpty())
                 ? postScrapRepository.findPostIdxByUserAndPostIn(authUserDetails.toEntity(), posts)
                 .stream()
@@ -432,7 +440,8 @@ public class CommunityService {
                 .map(post -> PostSummaryResponse.from(
                         post,
                         scrapCountMap.getOrDefault(post.getIdx(), 0L),
-                        scrappedPostIds.contains(post.getIdx())
+                        scrappedPostIds.contains(post.getIdx()),
+                        commentCountMap.getOrDefault(post.getIdx(), 0L)
                 ))
                 .toList();
 

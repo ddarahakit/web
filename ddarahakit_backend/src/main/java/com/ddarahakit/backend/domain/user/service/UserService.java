@@ -2,14 +2,16 @@ package com.ddarahakit.backend.domain.user.service;
 
 import com.ddarahakit.backend.common.exception.BaseException;
 import com.ddarahakit.backend.config.security.AuthUserDetails;
+import com.ddarahakit.backend.domain.community.CommentRepository;
 import com.ddarahakit.backend.domain.community.PostRepository;
 import com.ddarahakit.backend.domain.community.model.CommunityDto;
 import com.ddarahakit.backend.domain.community.model.Post;
 import com.ddarahakit.backend.domain.community.model.PostType;
+import com.ddarahakit.backend.domain.course.model.Course;
 import com.ddarahakit.backend.domain.course.model.CourseDto;
-import com.ddarahakit.backend.domain.course.model.LectureComplete;
+import com.ddarahakit.backend.domain.course.model.Lecture;
 import com.ddarahakit.backend.domain.course.repository.LectureCompleteRepository;
-import com.ddarahakit.backend.domain.course.service.CourseService;
+import com.ddarahakit.backend.domain.course.repository.LectureRepository;
 import com.ddarahakit.backend.domain.image.FileUploadService;
 import com.ddarahakit.backend.domain.orders.OrdersItemRepository;
 import com.ddarahakit.backend.domain.orders.model.OrdersItem;
@@ -48,10 +50,11 @@ public class UserService implements UserDetailsService {
     private final EmailVerifyRepository emailVerifyRepository;
     private final OrdersItemRepository ordersItemRepository;
     private final ReviewRepository reviewRepository;
-    private final CourseService courseService;
     private final LectureCompleteRepository lectureCompleteRepository;
+    private final LectureRepository lectureRepository;
     private final FileUploadService fileUploadService;
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
 
     /**
      * 로그인
@@ -132,28 +135,71 @@ public class UserService implements UserDetailsService {
      * 주문 코스 조회
      */
     public List<CourseDto.CourseRes> getOrderedCourseList(AuthUserDetails authUserDetails) {
-        List<OrdersItem> items = ordersItemRepository.findByOrdersUserAndOrdersPaidTrueAndOrdersRefundedFalse(authUserDetails.toEntity());
+        User user = authUserDetails.toEntity();
+        List<OrdersItem> items = ordersItemRepository.findByOrdersUserAndOrdersPaidTrueAndOrdersRefundedFalse(user);
 
-        return items.stream()
+        // 구매 코스 중복 제거(주문 순서 유지)
+        List<Course> courses = items.stream()
                 .collect(java.util.stream.Collectors.toMap(
                         item -> item.getCourse().getIdx(),
                         OrdersItem::getCourse,
                         (existing, replacement) -> existing,
                         java.util.LinkedHashMap::new
                 ))
-                .values()
-                .stream()
-                .map(course -> {
-                    List<LectureComplete> lectureCompletes = lectureCompleteRepository
-                            .findByUserAndCourseIdx(authUserDetails.toEntity(), course.getIdx());
+                .values().stream().toList();
 
-                    return CourseDto.CourseRes.of(
-                            course,
-                            courseService.readNextLecture(authUserDetails, course.getIdx()).getIdx(),
-                            lectureCompletes.stream().map(lectureComplete -> lectureComplete.getLecture().getIdx()).toList()
-                    );
+        if (courses.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> courseIdxList = courses.stream().map(Course::getIdx).toList();
+
+        // 코스마다 (수강완료 1 + 최신완료 1 + 강의목록 1) 쿼리를 돌리던 N+1 을, 아래 2개의 일괄 쿼리로 대체.
+        // 1) 사용자의 수강완료를 코스별 완료 강의 idx 목록으로 (단일 쿼리)
+        java.util.Map<Long, List<Long>> completedLectureIdxByCourse = lectureCompleteRepository
+                .findByUserAndCourseIdxIn(user, courseIdxList).stream()
+                .collect(java.util.stream.Collectors.groupingBy(
+                        lc -> lc.getCourse().getIdx(),
+                        java.util.stream.Collectors.mapping(lc -> lc.getLecture().getIdx(), java.util.stream.Collectors.toList())
+                ));
+
+        // 2) 코스별 전체 강의를 idx 순으로 (단일 쿼리)
+        java.util.Map<Long, List<Lecture>> lecturesByCourse = lectureRepository
+                .findAllByCourseIdxInOrderByLectureIdxAsc(courseIdxList).stream()
+                .collect(java.util.stream.Collectors.groupingBy(
+                        lecture -> lecture.getSection().getCourse().getIdx(),
+                        java.util.LinkedHashMap::new,
+                        java.util.stream.Collectors.toList()
+                ));
+
+        return courses.stream()
+                .map(course -> {
+                    List<Long> completes = completedLectureIdxByCourse.getOrDefault(course.getIdx(), List.of());
+                    Long nextLectureIdx = resolveNextLectureIdx(
+                            lecturesByCourse.getOrDefault(course.getIdx(), List.of()), completes);
+                    return CourseDto.CourseRes.of(course, nextLectureIdx, completes);
                 })
                 .toList();
+    }
+
+    /**
+     * 이어듣기(다음 강의) idx 계산. CourseService.readNextLecture 와 동일 규칙을 메모리에서 처리한다.
+     * - 강의가 없으면 0, 완료 없음/마지막까지 완료면 첫 강의, 그 외엔 최신 완료 다음 강의(없으면 첫 강의).
+     */
+    private Long resolveNextLectureIdx(List<Lecture> orderedLectures, List<Long> completedLectureIdxList) {
+        if (orderedLectures.isEmpty()) {
+            return 0L;
+        }
+        long maxCompleted = completedLectureIdxList.stream().mapToLong(Long::longValue).max().orElse(0L);
+        Long lastIdx = orderedLectures.get(orderedLectures.size() - 1).getIdx();
+        if (maxCompleted == 0L || lastIdx.equals(maxCompleted)) {
+            return orderedLectures.get(0).getIdx();
+        }
+        return orderedLectures.stream()
+                .map(Lecture::getIdx)
+                .filter(idx -> idx > maxCompleted)
+                .findFirst()
+                .orElse(orderedLectures.get(0).getIdx());
     }
 
     /**
@@ -171,7 +217,7 @@ public class UserService implements UserDetailsService {
      */
     public List<CommunityDto.PostSummaryResponse> getMyQuestionList(AuthUserDetails authUserDetails) {
         List<Post> posts = postRepository.findByUserAndPostTypeWithCourse(authUserDetails.toEntity(), PostType.QUESTION);
-        return posts.stream().map(CommunityDto.PostSummaryResponse::from).toList();
+        return toSummariesWithCommentCount(posts);
     }
 
     /**
@@ -181,7 +227,23 @@ public class UserService implements UserDetailsService {
         List<PostType> excludeTypes = List.of(PostType.QUESTION, PostType.NOTICE);
 
         List<Post> posts = postRepository.findByUserAndPostTypeNotInWithCourse(authUserDetails.toEntity(), excludeTypes);
-        return posts.stream().map(CommunityDto.PostSummaryResponse::from).toList();
+        return toSummariesWithCommentCount(posts);
+    }
+
+    /**
+     * 게시글 목록 → 요약 DTO 변환. 댓글 수는 일괄 COUNT 로 집계해
+     * 게시글마다 comments 컬렉션(LONGTEXT 본문 포함)을 로딩하던 낭비를 제거한다.
+     */
+    private List<CommunityDto.PostSummaryResponse> toSummariesWithCommentCount(List<Post> posts) {
+        if (posts.isEmpty()) {
+            return List.of();
+        }
+        java.util.Map<Long, Long> commentCountMap = commentRepository.countByPostIn(posts).stream()
+                .collect(java.util.stream.Collectors.toMap(row -> (Long) row[0], row -> (Long) row[1]));
+        return posts.stream()
+                .map(post -> CommunityDto.PostSummaryResponse.from(
+                        post, 0L, false, commentCountMap.getOrDefault(post.getIdx(), 0L)))
+                .toList();
     }
 
     /**
