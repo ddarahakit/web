@@ -66,10 +66,16 @@ const getCourseList = async () => {
 }
 
 
-const updateSelectedSectionList = () => {
-    const selectedCourse = courseList.find(course => course.idx === lectureInput.courseIdx);
-    if (selectedCourse) {
-        selectedSectionList.splice(0, selectedSectionList.length, ...selectedCourse.sections);
+// 코스 목록 응답(슬림 DTO)에는 sections 가 없으므로, 선택한 코스의 섹션만 상세 조회로 지연 로딩한다.
+const updateSelectedSectionList = async () => {
+    lectureInput.sectionIdx = 0;
+    if (!lectureInput.courseIdx) {
+        selectedSectionList.splice(0);
+        return;
+    }
+    const data = await api.courseDetail(lectureInput.courseIdx);
+    if (data?.success && data.results?.sections) {
+        selectedSectionList.splice(0, selectedSectionList.length, ...data.results.sections);
     } else {
         selectedSectionList.splice(0);
     }

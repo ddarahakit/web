@@ -15,14 +15,14 @@ public class CourseDto {
     @Builder
     public static class CourseListRes {
         private List<CategoryRes> category;
-        List<CourseRes> courses;
-        public static CourseListRes of(List<CourseRes> courseResList) {
+        List<CourseSummaryRes> courses;
+        public static CourseListRes of(List<CourseSummaryRes> courseResList) {
             return CourseListRes.builder()
                     .courses(courseResList)
                     .build();
         }
 
-        public static CourseListRes of(Category category, List<CourseRes> courseResList) {
+        public static CourseListRes of(Category category, List<CourseSummaryRes> courseResList) {
             List<CategoryRes> categoryResList = new ArrayList<>();
 
             categoryResList.add(CategoryRes.of(category));
@@ -36,6 +36,69 @@ public class CourseDto {
                     .category(categoryResList)
                     .courses(courseResList)
                     .build();
+        }
+    }
+
+    /**
+     * 코스 목록/검색/카테고리 응답 전용 슬림 DTO.
+     * 목록 카드(이미지·이름·가격·평점·난이도·주문수)에 필요한 스칼라 필드만 담고,
+     * 섹션/강의 트리(sections)·리뷰·수강 진행 등 상세 전용 필드는 제외해 페이로드를 최소화한다.
+     * (코스 1건당 섹션·수십 개 강의가 통째로 직렬화되던 과대 페이로드 제거)
+     */
+    @Getter
+    @Builder
+    public static class CourseSummaryRes {
+        private Long idx;
+        private String name;
+        private String image;
+        private String text;
+        private String description;
+        private List<CategoryRes> category;
+        private int originalPrice;
+        private int salePrice;
+        private String level;
+        private String levelDescription;
+        private int totalOrderedCount;
+        private int totalReviewsCount;
+        private int rating1;
+        private int rating2;
+        private int rating3;
+        private int rating4;
+        private int rating5;
+
+        public static CourseSummaryRes of(Course entity) {
+            List<CategoryRes> path = new ArrayList<>();
+            buildPath(entity.getCategory(), path);
+
+            return CourseSummaryRes.builder()
+                    .idx(entity.getIdx())
+                    .name(entity.getName())
+                    .image(entity.getImage())
+                    .text(entity.getText())
+                    .description(entity.getDescription())
+                    .category(path)
+                    .originalPrice(entity.getOriginalPrice())
+                    .salePrice(entity.getSalePrice())
+                    .level(entity.getLevel() != null ? entity.getLevel().name() : null)
+                    .levelDescription(entity.getLevel() != null ? entity.getLevel().getDisplayName() : null)
+                    .totalOrderedCount(entity.getOrders().size())
+                    .totalReviewsCount(entity.getTotalReviewsCount())
+                    .rating1(entity.getRating1())
+                    .rating2(entity.getRating2())
+                    .rating3(entity.getRating3())
+                    .rating4(entity.getRating4())
+                    .rating5(entity.getRating5())
+                    .build();
+        }
+
+        private static void buildPath(Category category, List<CategoryRes> path) {
+            if (category == null) {
+                return; // 카테고리 미지정 코스는 빈 path (NPE 방지)
+            }
+            if (category.getParent() != null) {
+                buildPath(category.getParent(), path);
+            }
+            path.add(CategoryRes.of(category));
         }
     }
 

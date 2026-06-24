@@ -52,7 +52,7 @@ public class CourseService {
     public CourseDto.CourseListRes list() {
         List<Course> result = courseRepository.findAll();
 
-        return CourseDto.CourseListRes.of(result.stream().map(CourseDto.CourseRes::of).toList());
+        return CourseDto.CourseListRes.of(result.stream().map(CourseDto.CourseSummaryRes::of).toList());
 
     }
 
@@ -65,7 +65,7 @@ public class CourseService {
         }
         List<Course> result = courseRepository.searchByKeyword(keyword.trim());
 
-        return CourseDto.CourseListRes.of(result.stream().map(CourseDto.CourseRes::of).toList());
+        return CourseDto.CourseListRes.of(result.stream().map(CourseDto.CourseSummaryRes::of).toList());
     }
 
     /**
@@ -114,7 +114,7 @@ public class CourseService {
             }
         }
 
-        return CourseDto.CourseListRes.of(result.stream().map(CourseDto.CourseRes::of).toList());
+        return CourseDto.CourseListRes.of(result.stream().map(CourseDto.CourseSummaryRes::of).toList());
     }
 
 
@@ -125,7 +125,7 @@ public class CourseService {
         List<Long> categoryIdxList = categoryRepository.findSubCategoryIdxList(category.getMaterializedPath());
         List<Course> result = courseRepository.findCoursesBycategoryIdxList(categoryIdxList);
 
-        return CourseDto.CourseListRes.of(category, result.stream().map(CourseDto.CourseRes::of).toList());
+        return CourseDto.CourseListRes.of(category, result.stream().map(CourseDto.CourseSummaryRes::of).toList());
     }
 
 
