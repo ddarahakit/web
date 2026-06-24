@@ -17,8 +17,8 @@ const userLogin = (req) => request($axios.post('/user/login', {
     password: req.password
 }))
 
-/** 사용자 로그아웃 */
-const userLogout = () => request($axios.get('/user/logout'))
+/** 사용자 로그아웃 (상태변경이므로 POST) */
+const userLogout = () => request($axios.post('/user/logout'))
 
 /** 사용자 토큰 갱신 (로그인 연장) */
 const userTokenRefresh = () => request($axios.get('/user/token/refresh'))

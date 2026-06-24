@@ -147,8 +147,10 @@ public class SecurityConfig {
                         .requestMatchers(GET, "/review/*").permitAll()
                         .requestMatchers(GET, "/community/**").permitAll()
                         .requestMatchers(POST, "/user/login", "/user/social/login", "/user/signup", "/user/email/verify", "/user/password/reset").permitAll()
+                        // 로그아웃은 만료/무효 토큰 상태에서도 성공해야 하므로 permitAll. 상태변경이라 GET→POST (CSRF 방어).
+                        .requestMatchers(POST, "/user/logout").permitAll()
                         .requestMatchers(PUT, "/user/password/reset").permitAll()
-                        .requestMatchers(GET, "/user/token/refresh", "/user/logout", "/user/email/duplicate", "/user/check", "/user/uuid/check").permitAll()
+                        .requestMatchers(GET, "/user/token/refresh", "/user/email/duplicate", "/user/check", "/user/uuid/check").permitAll()
 
                         // === 그 외 전부 인증 필요 (화이트리스트 기본 정책) ===
                         .anyRequest().authenticated()

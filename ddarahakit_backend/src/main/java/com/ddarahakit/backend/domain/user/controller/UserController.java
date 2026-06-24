@@ -228,7 +228,7 @@ public class UserController {
     @Operation(
             summary = "로그아웃",
             description = "현재 세션의 토큰을 무효화하고 로그아웃한다.")
-    @GetMapping("/logout")
+    @PostMapping("/logout")
     public ResponseEntity<BaseResponse<String>> logout(
             @CookieValue(value = "RTOKEN", required = false) String refreshToken
     ) {
