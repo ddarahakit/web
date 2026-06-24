@@ -135,10 +135,6 @@ public class SecurityConfig {
                         .requestMatchers(GET, "/user/profile", "/user/myreview", "/user/ordered", "/user/myquestion", "/user/mypost", "/user/payments", "/user/study/weekly").authenticated()
                         .requestMatchers(PUT, "/user/profile").authenticated()
                         .requestMatchers(POST, "/user/profile").authenticated()
-                        .requestMatchers(GET, "/mentoring", "/mentoring/*", "/mentoring/*/messages").authenticated()
-                        .requestMatchers(POST, "/mentoring", "/mentoring/*/messages").authenticated()
-                        .requestMatchers(PATCH, "/mentoring/*/read").authenticated()
-                        .requestMatchers(DELETE, "/mentoring/*").authenticated()
 
                         // === 공개(비로그인 허용) 엔드포인트 ===
                         .requestMatchers(GET, "/course/**").permitAll()

@@ -51,17 +51,12 @@ public enum BaseResponseStatus {
     CART_NOT_FOUND(false, 40007, "장바구니에 해당 항목이 존재하지 않습니다."),
     CART_ALREADY_PURCHASED(false, 40008, "이미 구매한 강의입니다."),
 
-    MENTORING_NOT_FOUND(false, 40020, "멘토링 세션을 찾을 수 없습니다."),
-    MENTORING_FORBIDDEN(false, 40021, "멘토링 세션에 접근할 권한이 없습니다."),
-    MENTORING_INVALID_MENTOR(false, 40022, "멘토 권한이 아닌 사용자입니다."),
-
     POST_NOT_FOUND(false, 40010, "게시글을 찾을 수 없습니다."),
     COMMENT_NOT_FOUND(false, 40011, "댓글을 찾을 수 없습니다."),
     SCRAP_ALREADY_EXISTS(false, 40012, "이미 스크랩한 게시글입니다."),
     SCRAP_NOT_FOUND(false, 40013, "스크랩 정보를 찾을 수 없습니다."),
     POST_UNAUTHORIZED(false, 40014, "게시글 작성자만 수정/삭제할 수 있습니다."),
     COMMENT_UNAUTHORIZED(false, 40015, "댓글 작성자만 수정/삭제할 수 있습니다."),
-    MENTORING_SESSION_CLOSED(false, 40023, "종료된 멘토링 세션입니다."),
     ROADMAP_NOT_FOUND(false, 40030, "로드맵을 찾을 수 없습니다."),
 
     COURSE_NOT_FOUND(false, 40060, "코스를 찾을 수 없습니다."),

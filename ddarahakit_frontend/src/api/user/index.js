@@ -88,21 +88,6 @@ const updateProfileImage = (formData) => request($axios.post('/user/profile', fo
 const getPayments = (req = {}) =>
     request($axios.get('/user/payments', { params: { page: req.page ?? 0, size: req.size ?? 10 } }))
 
-/** 보안 설정 조회 → { loginAlertEnabled, twoFactorEnabled } */
-const getSecuritySettings = () => request($axios.get('/user/security/settings'))
-
-/** 보안 설정 변경 */
-const updateSecuritySettings = (req) => request($axios.put('/user/security/settings', {
-    loginAlertEnabled: req.loginAlertEnabled,
-    twoFactorEnabled: req.twoFactorEnabled
-}))
-
-/** 활성 세션 목록 조회 */
-const getSessions = () => request($axios.get('/user/sessions'))
-
-/** 세션 종료 (특정 기기 원격 로그아웃) */
-const revokeSession = (sessionIdx) => request($axios.delete(`/user/sessions/${sessionIdx}`))
-
 /**
  * 주간 학습활동 조회
  * results: WeeklyRes { days:[{date,count}](7), streakDays, weeklyCompleted, goalRate(0~100), weeklyGoal }
@@ -112,5 +97,5 @@ const getWeeklyStudy = () => request($axios.get('/user/study/weekly'))
 export default {
     userSignup, userLogin, userLogout, userTokenRefresh, userTokenCheck, userProfile, getPaidCourseList, getMyQuestionList, getMyPostList, getMyReviewList,
     emailDuplicateCheck, loginCallback, updateProfile, updatePassword, resetPasswordReq, resetPassword, checkUuidExpired, emailVerify, updateProfileImage,
-    getPayments, getSecuritySettings, updateSecuritySettings, getSessions, revokeSession, getWeeklyStudy
+    getPayments, getWeeklyStudy
 }
