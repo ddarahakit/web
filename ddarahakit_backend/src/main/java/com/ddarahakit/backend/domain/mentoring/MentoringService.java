@@ -5,7 +5,7 @@ import com.ddarahakit.backend.config.security.AuthUserDetails;
 import com.ddarahakit.backend.domain.mentoring.model.*;
 import com.ddarahakit.backend.domain.user.model.entity.User;
 import com.ddarahakit.backend.domain.user.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +18,7 @@ import static com.ddarahakit.backend.common.model.BaseResponseStatus.*;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class MentoringService {
     private final MentoringSessionRepository sessionRepository;
     private final MentoringMessageRepository messageRepository;

@@ -16,6 +16,7 @@ import static com.ddarahakit.backend.common.model.BaseResponseStatus.*;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class RoadmapService {
     private final RoadmapRepository roadmapRepository;
     private final CourseRepository courseRepository;

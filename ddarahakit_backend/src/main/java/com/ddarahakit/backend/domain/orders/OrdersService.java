@@ -13,7 +13,7 @@ import io.portone.sdk.server.payment.CancelPaymentResponse;
 import io.portone.sdk.server.payment.PaidPayment;
 import io.portone.sdk.server.payment.Payment;
 import io.portone.sdk.server.payment.PaymentClient;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,6 +28,7 @@ import static com.ddarahakit.backend.common.model.BaseResponseStatus.*;
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class OrdersService {
     private final PaymentClient portone;
     private final OrdersRepository ordersRepository;

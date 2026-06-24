@@ -8,7 +8,7 @@ import com.ddarahakit.backend.domain.cart.model.CartItem;
 import com.ddarahakit.backend.domain.course.model.Course;
 import com.ddarahakit.backend.domain.course.repository.CourseRepository;
 import com.ddarahakit.backend.domain.orders.OrdersItemRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +16,7 @@ import static com.ddarahakit.backend.common.model.BaseResponseStatus.*;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class CartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
